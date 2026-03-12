@@ -44,6 +44,36 @@ user-select: none;
 margin-right: 10px;
 font-size: 2rem;
 }
+
+.header-search {
+display: flex;
+align-items: center;
+gap: 8px;
+margin-left: 24px;
+}
+
+.header-search input {
+padding: 8px 12px;
+border: none;
+border-radius: 20px;
+outline: none;
+min-width: 220px;
+}
+
+.header-search button {
+padding: 8px 14px;
+border: none;
+border-radius: 20px;
+background: #00d4ff;
+color: #08344a;
+font-weight: 600;
+cursor: pointer;
+transition: background 0.3s ease;
+}
+
+.header-search button:hover {
+background: #00f0ff;
+}
 nav ul {
 display: flex;
 list-style: none;
@@ -296,6 +326,12 @@ text-align: center;
 nav ul {
 margin-top: 15px;
 justify-content: center;
+}
+.header-search {
+margin: 15px 0 0;
+}
+.header-search input {
+min-width: 180px;
 }
 nav ul li {
 margin: 0 
