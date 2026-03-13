@@ -1,174 +1,240 @@
 <!DOCTYPE html>
 <html lang="es">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>TecnoPrint 3D - Impresión del Futuro</title>
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-		<link rel="stylesheet" href="diseño_inicio.css">
-		<link rel="stylesheet" href="carrito.css">
-	</head>
-	<body>
-		<header>
-			<div class="container">
-				<div class="header-content">
-					<div class="logo">
-						<span>TecnoPrint 3D</span>
-					</div>
-					<form class="header-search" action="#" method="get">
-						<input type="search" name="q" placeholder="Buscar..." aria-label="Buscar en el sitio">
-						<button type="submit">Buscar</button>
-					</form>
-					<nav>
-						<ul>
-							<li><a href="">Categoria</a></li>
-							<li><a href="">Software</a></li>
-							<li><a href="">Implementos</a></li>
-							<li><a href="http://127.0.0.1:5500/Contactos_pagina/index.html" class="external-link">Atencion al cliente</a></li>
-							<li><a href="#inicio">Quienes somos</a></li>
-						</ul>
-						<!-- Carrito -->
-						<div class="cart-icon" onclick="toggleCart()">
-							<i class="fas fa-shopping-cart"></i>
-							<span class="cart-badge" id="cart-count">0</span>
-						</div>
-					</nav>
-				</div>
-			</div>
-		</header>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TecnoPrint 3D - Impresión del Futuro</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="diseño_inicio.css">
+</head>
+<body>
 
-		<!-- Panel del carrito -->
-		<div class="cart-panel" id="cart-panel">
-			<div class="cart-header">
-				<h3>Tu carrito</h3>
-				<button onclick="toggleCart()"><i class="fas fa-times"></i></button>
-			</div>
-			<div class="cart-items" id="cart-items">
-				<p class="cart-empty">Tu carrito está vacío</p>
-			</div>
-			<div class="cart-footer">
-				<strong>Total: <span id="cart-total">$0</span></strong>
-				<button class="btn-primary" style="width:100%; margin-top:1rem;">Comprar ahora</button>
-			</div>
-		</div>
-		<div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+<!-- ══════════════════════════
+     HEADER
+══════════════════════════ -->
+<header>
+  <div class="container">
+    <div class="header-content">
+      <div class="logo">
+        <span>TecnoPrint 3D</span>
+      </div>
+      <form class="header-search" action="#" method="get">
+        <input type="search" name="q" placeholder="Buscar..." aria-label="Buscar en el sitio">
+        <button type="submit">Buscar</button>
+      </form>
+      <nav>
+        <ul>
+          <li><a href="">Categoria</a></li>
+          <li><a href="">Software</a></li>
+          <li><a href="">Implementos</a></li>
+          <li><a href="#">Atencion al cliente</a></li>
+          <li><a href="#inicio">Quienes somos</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</header>
 
-		<section class="hero" id="inicio">
-			<div class="hero-content">
-				<h1>Impresión 3D: Creando el Futuro</h1>
-				<p>Descubre el mundo de la impresión 3D y cómo está revolucionando la manufactura, la medicina, la arquitectura y más.</p>
-				<a href="#tipos" class="btn">Explorar Tecnologías</a>
-			</div>
-		</section>
-		<section>
-			<div class="container">
-				<h2 class="section-title">Que tipo de tecnicas de impresion requires?</h2>
-				<div class="printers-grid">
-					<div class="printer-card">
-						<div class="printer-img">
-							<img src="https://ingenia-sm.com/wp-content/uploads/2022/11/fdm.png" alt="Impresora FDM">
-						</div>
-						<div class="printer-info">
-							<h3>FDM (Modelado por Deposición Fundida)</h3>
-							<p>Tecnología más común y accesible. Utiliza filamentos termoplásticos que se funden y depositan capa por capa.</p>
-						</div>
-					</div>
-					<div class="printer-card">
-						<div class="printer-img">
-							<img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Impresora SLA">
-						</div>
-						<div class="printer-info">
-							<h3>SLA (Estereolitografía)</h3>
-							<p>Utiliza resina líquida que se cura con luz ultravioleta. Ofrece alta precisión y acabados suaves.</p>
-						</div>
-					</div>
-					<div class="printer-card">
-						<div class="printer-img">
-							<img src="IMPRESORA.jpeg" alt="Impresora SLS">
-						</div>
-						<div class="printer-info">
-							<h3>SLS (Sinterizado Selectivo por Láser)</h3>
-							<p>Utiliza un láser para fusionar polvos de materiales como nylon. Ideal para piezas funcionales y complejas.</p>
-						</div>
-					</div>
-				</div>
-			</div>
-		</section>
-		<section class="applications">
-			<div class="container">
-				<h2 class="section-title">Aplicaciones de la Impresión 3D</h2>
-				<div class="applications-grid">
-					<div class="app-card">
-						<div class="app-icon">
-							<i class="fas fa-briefcase-medical"></i>
-						</div>
-						<h3>Medicina</h3>
-						<p>Prótesis personalizadas, modelos anatómicos para planificación quirúrgica y fabricación de implantes.</p>
-					</div>
-					<div class="app-card">
-						<div class="app-icon">
-							<i class="fas fa-industry"></i>
-						</div>
-						<h3>Industria</h3>
-						<p>Prototipado rápido, fabricación de herramientas y producción de piezas personalizadas bajo demanda.</p>
-					</div>
-					<div class="app-card">
-						<div class="app-icon">
-							<i class="fas fa-home"></i>
-						</div>
-						<h3>Arquitectura</h3>
-						<p>Maquetas arquitectónicas detalladas y construcción de viviendas mediante impresión 3D a gran escala.</p>
-					</div>
-					<div class="app-card">
-						<div class="app-icon">
-							<i class="fas fa-palette"></i>
-						</div>
-						<h3>Arte y Diseño</h3>
-						<p>Creación de esculturas, joyería personalizada y objetos decorativos con formas complejas.</p>
-					</div>
-				</div>
-			</div>
-		</section>
-		<footer>
-			<div class="container">
-				<div class="footer-content">
-					<div class="footer-section">
-						<h3>TecnoPrint 3D</h3>
-						<p>Explorando las posibilidades infinitas de la impresión 3D.</p>
-					</div>
-					<div class="footer-section">
-						<h3>Enlaces Rápidos</h3>
-						<ul>
-							<li><a href="#inicio">Inicio</a></li>
-							<li><a href="#tipos">Los Tipos de Impresoras</a></li>
-							<li><a href="#aplicaciones">Aplicaciones</a></li>
-							<li><a href="#galeria">Galería</a></li>
-						</ul>
-					</div>
-					<div class="footer-section">
-						<h3>Contacto</h3>
-						<ul>
-							<li><i class="fas fa-envelope"></i> info@tecnoprint3d.com</li>
-							<li><i class="fas fa-phone"></i> +1 234 567 890</li>
-							<li><i class="fas fa-map-marker-alt"></i> Ciudad, País</li>
-						</ul>
-					</div>
-					<div class="footer-section">
-						<h3>Síguenos</h3>
-						<div class="social-links">
-							<a href="#"><i class="fab fa-facebook"></i></a>
-							<a href="#"><i class="fab fa-twitter"></i></a>
-							<a href="#"><i class="fab fa-instagram"></i></a>
-							<a href="#"><i class="fab fa-youtube"></i></a>
-						</div>
-					</div>
-				</div>
-				<div class="copyright">
-					<p>&copy; 2023 TecnoPrint 3D. Todos los derechos reservados.</p>
-				</div>
-			</div>
-		</footer>
-		<script src="interacion_inicio.js"></script>
-		<script src="carrito.js"></script>
-	</body>
+<!-- ══════════════════════════
+     HERO
+══════════════════════════ -->
+<section class="hero" id="inicio">
+  <div class="hero-content">
+    <h1>Impresión 3D: Creando el Futuro</h1>
+    <p>Descubre el mundo de la impresión 3D y cómo está revolucionando la manufactura, la medicina, la arquitectura y más.</p>
+    <a href="#tipos" class="btn">Explorar Tecnologías</a>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     TIPOS DE TÉCNICAS
+══════════════════════════ -->
+<section id="tipos">
+  <div class="container">
+    <h2 class="section-title">Que tipo de tecnicas de impresion requires?</h2>
+    <div class="printers-grid">
+
+      <div class="printer-card">
+        <div class="printer-img">
+          <img src="https://ingenia-sm.com/wp-content/uploads/2022/11/fdm.png" alt="Impresora FDM">
+        </div>
+        <div class="printer-info">
+          <h3>Impresion filamento</h3>
+          <p>consiste en derretir termoplásticos (como PLA, PETG, ABS) mediante un fusor y depositarlos capa por capa para crear objetos 3D. Requiere ajustar temperaturas</p>
+        </div>
+      </div>
+
+      <div class="printer-card">
+        <div class="printer-img">
+          <img src="imagenes/descarga (1).jpeg" alt="Impresora SLA">
+        </div>
+        <div class="printer-info">
+          <h3>Impresion resina</h3>
+          <p>utiliza luz UV para endurecer resina líquida capa por capa, ofreciendo altísima precisión y detalles suaves ideales para figuras, joyería y prototipos funcionales</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     ¿QUÉ DEBES TENER EN CUENTA?
+══════════════════════════ -->
+<section class="consideraciones" id="consideraciones">
+  <div class="container">
+    <h2 class="section-title">¿Qué debes tener en <span>cuenta</span>?</h2>
+
+    <div class="cards-container">
+
+      <!-- CARD 1: Tipo de material -->
+      <div class="card-considera" id="card-material">
+        <h2>Tipo de material</h2>
+        <div class="material-header">
+          <span>Bajo</span><span>Medio</span><span>Alto</span>
+        </div>
+        <div id="material-rows"></div>
+        <div class="material-legend" id="material-legend"></div>
+      </div>
+
+      <!-- CARD 2: Resolución de impresión -->
+      <div class="card-considera">
+        <h2>Resolución de impresión</h2>
+        <p class="resolution-desc">
+          Es el espesor de cada capa: entre más alta la resolución,
+          la superficie será más lisa, pero el tiempo de impresión será mayor.
+        </p>
+        <div class="res-examples">
+          <div class="res-item">
+            <div class="stair-wrap" id="stair-high"></div>
+            <span>Alta (0.14mm)</span>
+          </div>
+          <div class="res-item">
+            <div class="stair-wrap" id="stair-mid"></div>
+            <span>Media (0.19mm)</span>
+          </div>
+          <div class="res-item">
+            <div class="stair-wrap" id="stair-low"></div>
+            <span>Baja (0.29mm)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 3: Relleno del objeto -->
+      <div class="card-considera">
+        <h2>Relleno del objeto</h2>
+        <p class="fill-desc">
+          Entre más alto sea el porcentaje de relleno, el objeto será más macizo;
+          entre menos sea el porcentaje, más hueco será.
+        </p>
+        <div class="fill-examples">
+          <div class="fill-item">
+            <div class="fill-box" id="fill-10"></div>
+            <span>10%</span>
+          </div>
+          <div class="fill-item">
+            <div class="fill-box" id="fill-50"></div>
+            <span>50%</span>
+          </div>
+          <div class="fill-item">
+            <div class="fill-box" id="fill-100"></div>
+            <span>100%</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     APLICACIONES
+══════════════════════════ -->
+<section class="applications" id="aplicaciones">
+  <div class="container">
+    <h2 class="section-title">Aplicaciones de la Impresión 3D</h2>
+    <div class="applications-grid">
+
+      <div class="app-card">
+        <div class="app-icon"><i class="fas fa-briefcase-medical"></i></div>
+        <h3>Medicina</h3>
+        <p>Prótesis personalizadas, modelos anatómicos para planificación quirúrgica y fabricación de implantes.</p>
+      </div>
+
+      <div class="app-card">
+        <div class="app-icon"><i class="fas fa-industry"></i></div>
+        <h3>Industria</h3>
+        <p>Prototipado rápido, fabricación de herramientas y producción de piezas personalizadas bajo demanda.</p>
+      </div>
+
+      <div class="app-card">
+        <div class="app-icon"><i class="fas fa-home"></i></div>
+        <h3>Arquitectura</h3>
+        <p>Maquetas arquitectónicas detalladas y construcción de viviendas mediante impresión 3D a gran escala.</p>
+      </div>
+
+      <div class="app-card">
+        <div class="app-icon"><i class="fas fa-palette"></i></div>
+        <h3>Arte y Diseño</h3>
+        <p>Creación de esculturas, joyería personalizada y objetos decorativos con formas complejas.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     FOOTER
+══════════════════════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-content">
+
+      <div class="footer-section">
+        <h3>TecnoPrint 3D</h3>
+        <p>Explorando las posibilidades infinitas de la impresión 3D.</p>
+      </div>
+
+      <div class="footer-section">
+        <h3>Enlaces Rápidos</h3>
+        <ul>
+          <li><a href="#inicio">Inicio</a></li>
+          <li><a href="#tipos">Tipos de Impresoras</a></li>
+          <li><a href="#consideraciones">¿Qué tener en cuenta?</a></li>
+          <li><a href="#aplicaciones">Aplicaciones</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h3>Contacto</h3>
+        <ul>
+          <li><i class="fas fa-envelope"></i> info@tecnoprint3d.com</li>
+          <li><i class="fas fa-phone"></i> +1 234 567 890</li>
+          <li><i class="fas fa-map-marker-alt"></i> Ciudad, País</li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h3>Síguenos</h3>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-facebook"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+
+    </div>
+    <div class="copyright">
+      <p>&copy; 2023 TecnoPrint 3D. Todos los derechos reservados.</p>
+    </div>
+  </div>
+</footer>
+
+<div class="tooltip" id="tooltip"></div>
+
+<!-- JS externo — debe ir al final del body para que el DOM ya esté cargado -->
+<script src="interacion_inicio.js"></script>
+
+</body>
 </html>
