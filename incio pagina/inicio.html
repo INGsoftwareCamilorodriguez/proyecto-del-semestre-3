@@ -4,14 +4,15 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>TecnoPrint 3D - Impresión del Futuro</title>
-		<link rel="stylesheet" href="diesño_inicio.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+		<link rel="stylesheet" href="diseño_inicio.css">
+		<link rel="stylesheet" href="carrito.css">
 	</head>
 	<body>
 		<header>
 			<div class="container">
 				<div class="header-content">
 					<div class="logo">
-						<i class="fas fa-print"></i>
 						<span>TecnoPrint 3D</span>
 					</div>
 					<form class="header-search" action="#" method="get">
@@ -20,16 +21,38 @@
 					</form>
 					<nav>
 						<ul>
-							<li><a href="">Tipos</a></li>
-							<li><a href="">Aplicaciones</a></li>
-							<li><a href="">Galería</a></li>
-							<li><a src href="http://127.0.0.1:5500/Contactos_pagina/index.html" class="external-link">Atencion al cliente</a></li>
-							<li><a href="#inicio">Quiene somos</a></li>
+							<li><a href="">Categoria</a></li>
+							<li><a href="">Software</a></li>
+							<li><a href="">Implementos</a></li>
+							<li><a href="http://127.0.0.1:5500/Contactos_pagina/index.html" class="external-link">Atencion al cliente</a></li>
+							<li><a href="#inicio">Quienes somos</a></li>
 						</ul>
+						<!-- Carrito -->
+						<div class="cart-icon" onclick="toggleCart()">
+							<i class="fas fa-shopping-cart"></i>
+							<span class="cart-badge" id="cart-count">0</span>
+						</div>
 					</nav>
 				</div>
 			</div>
 		</header>
+
+		<!-- Panel del carrito -->
+		<div class="cart-panel" id="cart-panel">
+			<div class="cart-header">
+				<h3>Tu carrito</h3>
+				<button onclick="toggleCart()"><i class="fas fa-times"></i></button>
+			</div>
+			<div class="cart-items" id="cart-items">
+				<p class="cart-empty">Tu carrito está vacío</p>
+			</div>
+			<div class="cart-footer">
+				<strong>Total: <span id="cart-total">$0</span></strong>
+				<button class="btn-primary" style="width:100%; margin-top:1rem;">Comprar ahora</button>
+			</div>
+		</div>
+		<div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+
 		<section class="hero" id="inicio">
 			<div class="hero-content">
 				<h1>Impresión 3D: Creando el Futuro</h1>
@@ -146,5 +169,6 @@
 			</div>
 		</footer>
 		<script src="interacion_inicio.js"></script>
+		<script src="carrito.js"></script>
 	</body>
 </html>

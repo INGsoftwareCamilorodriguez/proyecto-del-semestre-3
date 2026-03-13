@@ -45,9 +45,6 @@ body::before {
   75%        { transform: translate(-10px, 10px) scale(1.05); }
 }
 
-/* ============================================================
-   NAVBAR — idéntico al de la página principal
-   ============================================================ */
 .navbar {
   background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
   position: fixed;
@@ -67,10 +64,11 @@ body::before {
   max-width: 1400px;
   margin: 0 auto;
   gap: 1.5rem;
+  flex-wrap: nowrap;
 }
 
 .logo {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: var(--neon-blue);
   text-decoration: none;
@@ -84,7 +82,6 @@ body::before {
 
 .logo:hover { color: #00f0ff; }
 
-/* Barra de búsqueda */
 .header-search {
   display: flex;
   align-items: center;
@@ -125,7 +122,6 @@ body::before {
   transform: translateY(-1px);
 }
 
-/* Links */
 .nav-links {
   display: flex;
   gap: 1.5rem;
@@ -160,7 +156,21 @@ body::before {
 .nav-links li a:hover::after,
 .nav-links li a.active-link::after { width: 100%; }
 
-/* Botón hamburguesa */
+.cart-icon {
+  position: relative;
+  cursor: pointer;
+  font-size: 1.3rem;
+  color: #ffffff;
+  padding: 0.5rem;
+  transition: transform 0.2s;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.cart-icon:hover { transform: scale(1.1); }
+
 .menu-toggle {
   display: none;
   background: transparent;
@@ -174,9 +184,6 @@ body::before {
 
 .menu-toggle:hover { color: #00d4ff; }
 
-/* ============================================================
-   HERO SECTION
-   ============================================================ */
 .hero-section {
   min-height: 100vh;
   display: flex;
@@ -272,9 +279,6 @@ body::before {
   transform: translateY(-2px);
 }
 
-/* ============================================================
-   PROFILE CARD
-   ============================================================ */
 .profile-card-hero {
   background: var(--card-bg);
   border-radius: 30px;
@@ -297,7 +301,6 @@ body::before {
   transform: translate(50%, -50%);
 }
 
-/* Imagen con wrapper (Camilo y Sebastian) */
 .profile-images-wrapper {
   position: relative;
   width: 200px;
@@ -323,7 +326,6 @@ body::before {
   z-index: 3;
 }
 
-/* Imagen circular simple (Nicolas y Juan Sebastian) */
 .profile-solo-wrapper {
   position: relative;
   width: 200px;
@@ -343,7 +345,6 @@ body::before {
 
 .profile-solo:hover { transform: scale(1.05); }
 
-/* Badge verde "Disponible" */
 .status-badge {
   position: absolute;
   top: 10px; right: 10px;
@@ -385,9 +386,6 @@ body::before {
   z-index: 1;
 }
 
-/* ============================================================
-   FOOTER
-   ============================================================ */
 .footer {
   background: var(--primary-blue);
   padding: 2rem 0;
@@ -395,9 +393,6 @@ body::before {
   border-top: 1px solid var(--border-color);
 }
 
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
 @media (max-width: 900px) {
   .header-search input { min-width: 140px; }
   .nav-links { gap: 1rem; }
