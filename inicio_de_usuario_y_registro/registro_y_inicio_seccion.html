@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Bodega FET · Acceso</title>
+  <link rel="stylesheet" href="/inicio_de_usuario_y_registro/diseño_inicio_seccion.css">
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <span>Bodega Fet</span>
+        </div>
+        <nav>
+          <ul>
+            <li><a href="#">Inicio</a></li>
+            <li><a href="">Software</a></li>
+            <li><a href="">Implementos</a></li>
+            <li><a href="/inicio_pagina/apartado_contactos/contacto/contactos.html">Atención al cliente</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== LOGIN ===== -->
+  <div class="login-wrapper">
+    <div class="login-inner">
+      <div class="login-card">
+
+        <!-- LOGO -->
+        <div class="logo-section">
+          <div class="logo-container">
+            <img src="/inicio_de_usuario_y_registro/Imagenes/logo.png" alt="Logo FET" class="logo-image" />
+          </div>
+        </div>
+
+        <!-- Bienvenida -->
+        <div class="welcome-text">
+          <h2>Acceso Bodega</h2>
+          <div class="badge-bodega">
+            <i class="fas fa-lock" style="margin-right: 5px;"></i> Sólo personal autorizado
+          </div>
+        </div>
+
+        <!-- FORMULARIO -->
+        <form class="login-form" onsubmit="event.preventDefault(); alert('Demo: validación frontend. Conectar a backend real.');">
+
+          <div class="input-group">
+            <label for="username"><i class="fas fa-user-circle"></i> Usuario institucional</label>
+            <div class="input-field">
+              <i class="fas fa-id-badge"></i>
+              <input type="text" id="username" name="username" placeholder="ej. jperez@fet.edu.co" autocomplete="username" required>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="password"><i class="fas fa-key"></i> Contraseña</label>
+            <div class="input-field">
+              <i class="fas fa-lock"></i>
+              <input type="password" id="password" name="password" placeholder="············" autocomplete="current-password" required>
+            </div>
+          </div>
+
+          <div class="form-options">
+            <label class="remember">
+              <input type="checkbox" checked> Recordar sesión
+            </label>
+            <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
+          </div>
+
+          <button type="submit" class="login-btn">
+            <i class="fas fa-arrow-right-to-bracket"></i> Ingresar a Bodega
+          </button>
+        </form>
+
+        <!-- REGISTRO -->
+        <div class="register-section">
+          <div class="register-prompt">
+            <i class="fas fa-user-plus" style="color: #228b22; margin-right: 5px;"></i>
+            ¿Aún no tienes credenciales?
+          </div>
+          <a href="#" class="register-btn" id="registerLink">
+            <i class="fas fa-pen-to-square"></i> Registrarme
+          </a>
+          <p style="margin-top: 16px; font-size: 0.8rem; color: #4a624a;">
+            <i class="fas fa-graduation-cap"></i> Sólo para personal de la FET.
+          </p>
+        </div>
+
+        <div class="footer-note">
+          Fundación Escuela Tecnológica  Sistema de Bodega 
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/inicio_de_usuario_y_registro/logica_inicio_seccion.js"></script>
+</body>
+</html>
