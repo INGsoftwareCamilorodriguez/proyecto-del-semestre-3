@@ -2,7 +2,7 @@
   --primary-blue: #0f172a;
   --accent-blue: #1e40af;
   --light-blue: #3b82f6;
-  --neon-blue: #00d4ff;
+  --neon-blue: #ffffff;
   --dark-bg: #0a0a0a;
   --card-bg: #3f6ed4;
   --text-primary: #f8fafc;
@@ -46,14 +46,13 @@ body::before {
 }
 
 .navbar {
-  background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+  background: #228b22;
   position: fixed;
   top: 0;
   width: 100%;
   z-index: 1000;
   padding: 0 2rem;
   transition: transform 0.3s ease;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .nav-wrapper {
@@ -80,7 +79,7 @@ body::before {
   transition: color 0.3s;
 }
 
-.logo:hover { color: #00f0ff; }
+.logo:hover { color: #000000; }
 
 .header-search {
   display: flex;
@@ -109,7 +108,7 @@ body::before {
   padding: 8px 18px;
   border: none;
   border-radius: 20px;
-  background: #00d4ff;
+  background: #fdbb2d;
   color: #08344a;
   font-weight: 700;
   cursor: pointer;
@@ -118,7 +117,7 @@ body::before {
 }
 
 .header-search button:hover {
-  background: #00f0ff;
+  background: #fdbb2d;
   transform: translateY(-1px);
 }
 
@@ -146,12 +145,12 @@ body::before {
   position: absolute;
   bottom: 0; left: 0;
   width: 0; height: 2px;
-  background: #00f0ff;
+  background: #000000;
   transition: width 0.3s;
 }
 
 .nav-links li a:hover,
-.nav-links li a.active-link { color: #00f0ff; }
+.nav-links li a.active-link { color: #ffcdcd; }
 
 .nav-links li a:hover::after,
 .nav-links li a.active-link::after { width: 100%; }
