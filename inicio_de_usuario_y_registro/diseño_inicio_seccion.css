@@ -53,34 +53,6 @@ header {
 }
 
 .logo:hover { color: #000000; }
-
-.header-search {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.header-search input {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 20px;
-  outline: none;
-  min-width: 220px;
-}
-
-.header-search button {
-  padding: 8px 14px;
-  border: none;
-  border-radius: 20px;
-  background: #fdbb2d;
-  color: #08344a;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.header-search button:hover { background: #ffcdcd; }
-
 nav ul {
   display: flex;
   align-items: center;
@@ -372,7 +344,6 @@ nav ul li a:hover::after { width: 100%; }
 ═══════════════════════════════ */
 @media (max-width: 768px) {
   .header-content { flex-direction: column; text-align: center; gap: 12px; }
-  .header-search input { min-width: 180px; }
   nav ul { flex-wrap: wrap; justify-content: center; gap: 8px; }
 }
 
