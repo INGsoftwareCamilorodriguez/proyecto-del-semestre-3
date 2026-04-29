@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrador - Bodega Deportiva FET</title>
+    <link rel="stylesheet" href="style2.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <img src="/dashboard/fet 2.jpg" alt="Logo FET" class="logo">
+                </div>
+                <h2>Admin FET</h2>
+                <p class="admin-badge">Administrador</p>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="#" class="nav-item active" data-section="dashboard">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item" data-section="usuarios">
+                            <i class="fas fa-users"></i>
+                            <span>Usuarios</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item" data-section="registros">
+                            <i class="fas fa-clipboard-list"></i>
+                            <span>Registros Deportivos</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item" data-section="inventario">
+                            <i class="fas fa-boxes"></i>
+                            <span>Inventario</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item" data-section="reportes">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Reportes</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <a href="#" class="logout-btn" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Cerrar Sesión</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Contenido Principal -->
+        <main class="main-content">
+            <!-- Header móvil -->
+            <header class="mobile-header">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h3>Panel de Administración</h3>
+                <div class="header-user">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+            </header>
+
+            <!-- Sección Dashboard -->
+            <section class="content-section active" id="dashboard">
+                <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon users">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h3>Total Usuarios</h3>
+                            <p class="metric-value" id="totalUsuarios">0</p>
+                            <span class="metric-trend positive">
+                                <i class="fas fa-arrow-up"></i> 12%
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon futbol">
+                            <i class="fas fa-futbol"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h3>Registros Fútbol</h3>
+                            <p class="metric-value" id="totalFutbol">0</p>
+                            <span class="metric-trend positive">
+                                <i class="fas fa-arrow-up"></i> 8%
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon tenis">
+                            <i class="fas fa-table-tennis"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h3>Registros Tenis de Mesa</h3>
+                            <p class="metric-value" id="totalTenis">0</p>
+                            <span class="metric-trend positive">
+                                <i class="fas fa-arrow-up"></i> 15%
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon prestamos">
+                            <i class="fas fa-hand-holding"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h3>Préstamos Activos</h3>
+                            <p class="metric-value" id="prestamosActivos">0</p>
+                            <span class="metric-trend negative">
+                                <i class="fas fa-arrow-down"></i> 3%
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Últimos registros -->
+                <div class="recent-activity">
+                    <h2><i class="fas fa-clock"></i> Actividad Reciente</h2>
+                    <div class="activity-list" id="recentActivity">
+                        <p class="no-data">Cargando actividad reciente...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección Usuarios -->
+            <section class="content-section" id="usuarios">
+                <div class="section-header">
+                    <h1><i class="fas fa-users"></i> Gestión de Usuarios</h1>
+                    <button class="btn-add" id="btnAddUsuario">
+                        <i class="fas fa-plus"></i> Agregar Usuario
+                    </button>
+                </div>
+
+                <!-- Buscador y filtros -->
+                <div class="controls-bar">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchUsuario" placeholder="Buscar usuario...">
+                    </div>
+                    <select id="filterTipo" class="filter-select">
+                        <option value="">Todos los tipos</option>
+                        <option value="Estudiante">Estudiante</option>
+                        <option value="Docente">Docente</option>
+                        <option value="Visitante">Visitante</option>
+                    </select>
+                </div>
+
+                <!-- Tabla de usuarios -->
+                <div class="table-container">
+                    <table class="data-table" id="tablaUsuarios">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Programa</th>
+                                <th>Tipo</th>
+                                <th>Género</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usuariosTableBody">
+                            <tr>
+                                <td colspan="5" class="no-data">No hay usuarios registrados</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Paginación -->
+                <div class="pagination" id="paginacionUsuarios"></div>
+            </section>
+
+            <!-- Sección Registros Deportivos -->
+            <section class="content-section" id="registros">
+                <h1><i class="fas fa-clipboard-list"></i> Registros Deportivos</h1>
+                
+                <!-- Tabs de deportes -->
+                <div class="tabs">
+                    <button class="tab-btn active" data-deporte="futbol">
+                        <i class="fas fa-futbol"></i> Fútbol
+                    </button>
+                    <button class="tab-btn" data-deporte="tenis">
+                        <i class="fas fa-table-tennis"></i> Tenis de Mesa
+                    </button>
+                </div>
+
+                <div class="tab-content active" id="tabFutbol">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Posición</th>
+                                    <th>Número</th>
+                                    <th>Experiencia</th>
+                                    <th>Fecha</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="futbolTableBody">
+                                <tr>
+                                    <td colspan="6" class="no-data">No hay registros de fútbol</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="tabTenis">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Mano Dominante</th>
+                                    <th>Tipo de Juego</th>
+                                    <th>Experiencia</th>
+                                    <th>Fecha</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tenisTableBody">
+                                <tr>
+                                    <td colspan="6" class="no-data">No hay registros de tenis de mesa</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección Inventario -->
+            <section class="content-section" id="inventario">
+                <div class="section-header">
+                    <h1><i class="fas fa-boxes"></i> Inventario Deportivo</h1>
+                    <button class="btn-add" id="btnAddInventario">
+                        <i class="fas fa-plus"></i> Agregar Elemento
+                    </button>
+                </div>
+
+                <div class="inventory-grid" id="inventoryGrid">
+                    <p class="no-data">Cargando inventario...</p>
+                </div>
+
+                <!-- Modal para agregar/editar inventario -->
+                <div class="modal" id="modalInventario">
+                    <div class="modal-content">
+                        <h3 id="modalTitle">Agregar Elemento</h3>
+                        <form id="formInventario">
+                            <div class="form-group">
+                                <label>Nombre del elemento</label>
+                                <input type="text" id="invNombre" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Categoría</label>
+                                <select id="invCategoria" required>
+                                    <option value="">Seleccionar</option>
+                                    <option value="Fútbol">Fútbol</option>
+                                    <option value="Tenis de Mesa">Tenis de Mesa</option>
+                                    <option value="General">General</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Cantidad</label>
+                                    <input type="number" id="invCantidad" min="1" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Estado</label>
+                                    <select id="invEstado" required>
+                                        <option value="Disponible">Disponible</option>
+                                        <option value="En préstamo">En préstamo</option>
+                                        <option value="Mantenimiento">Mantenimiento</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-actions">
+                                <button type="submit" class="btn-save">
+                                    <i class="fas fa-save"></i> Guardar
+                                </button>
+                                <button type="button" class="btn-cancel" id="btnCancelModal">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección Reportes -->
+            <section class="content-section" id="reportes">
+                <h1><i class="fas fa-chart-bar"></i> Reportes y Estadísticas</h1>
+                
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3><i class="fas fa-user-chart"></i> Usuarios por Tipo</h3>
+                        <div class="chart-content" id="chartTipoUsuario">
+                            <div class="chart-bar-container">
+                                <div class="chart-bar estudiante" id="barEstudiante">
+                                    <span class="bar-label">Estudiantes</span>
+                                    <span class="bar-value">0</span>
+                                </div>
+                                <div class="chart-bar docente" id="barDocente">
+                                    <span class="bar-label">Docentes</span>
+                                    <span class="bar-value">0</span>
+                                </div>
+                                <div class="chart-bar visitante" id="barVisitante">
+                                    <span class="bar-label">Visitantes</span>
+                                    <span class="bar-value">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3><i class="fas fa-chart-pie"></i> Deportes Más Practicados</h3>
+                        <div class="chart-content" id="chartDeportes">
+                            <div class="simple-pie-chart">
+                                <div class="pie-segment futbol" id="pieFutbol">
+                                    <span>Fútbol</span>
+                                </div>
+                                <div class="pie-segment tenis" id="pieTenis">
+                                    <span>Tenis de Mesa</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3><i class="fas fa-chart-line"></i> Registros por Mes</h3>
+                        <div class="chart-content" id="chartMensual">
+                            <div class="monthly-bars">
+                                <div class="month-bar" style="height: 60%"><span>Ene</span></div>
+                                <div class="month-bar" style="height: 80%"><span>Feb</span></div>
+                                <div class="month-bar" style="height: 90%"><span>Mar</span></div>
+                                <div class="month-bar" style="height: 70%"><span>Abr</span></div>
+                                <div class="month-bar" style="height: 85%"><span>May</span></div>
+                                <div class="month-bar" style="height: 95%"><span>Jun</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Overlay para móvil -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Modal de confirmación -->
+    <div class="modal" id="modalConfirm">
+        <div class="modal-content confirm-modal">
+            <i class="fas fa-exclamation-triangle warning-icon"></i>
+            <h3>¿Confirmar eliminación?</h3>
+            <p>Esta acción no se puede deshacer</p>
+            <div class="modal-actions">
+                <button class="btn-delete" id="btnConfirmDelete">
+                    <i class="fas fa-trash"></i> Eliminar
+                </button>
+                <button class="btn-cancel" id="btnCancelDelete">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script2.js"></script>
+</body>
+</html>

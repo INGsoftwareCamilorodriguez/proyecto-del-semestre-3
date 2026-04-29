@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Tenis de Mesa FET | Fundación Escuela Tecnológica</title>
+    <link rel="stylesheet" href="style3.css">
+</head>
+<body>
+    <div class="container">
+        <div class="form-card">
+                <div class="logo-container">
+                    <img src="/formulario_producto/fomulario_tenis/fet 2.jpg" alt="Logo FET" class="logo-image">
+                </div>
+            
+            <h1>
+                <i class="fas fa-table-tennis"></i>
+                Registro Deportivo de Tenis de Mesa
+            </h1>
+            <p class="subtitle">Bodega Deportiva FET</p>
+
+            <form id="formularioTenis" novalidate>
+                <!-- Datos personales -->
+                <div class="form-section">
+                    <h2><i class="fas fa-user"></i> Datos Personales</h2>
+                    
+                    <div class="form-group">
+                        <label for="nombre">
+                            <i class="fas fa-id-card"></i> Nombres Completos
+                        </label>
+                        <input type="text" id="nombre" name="nombre" placeholder="Ej: María Fernanda López">
+                        <span class="error-message" id="errorNombre"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="programa">
+                            <i class="fas fa-graduation-cap"></i> Programa Académico
+                        </label>
+                        <input type="text" id="programa" name="programa" placeholder="Ej: Ingeniería Ambiental">
+                        <span class="error-message" id="errorPrograma"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tipoUsuario">
+                                <i class="fas fa-user-tag"></i> Tipo de Usuario
+                            </label>
+                            <select id="tipoUsuario" name="tipoUsuario">
+                                <option value="">Seleccione una opción</option>
+                                <option value="estudiante">Estudiante</option>
+                                <option value="docente">Docente</option>
+                                <option value="visitante">Visitante</option>
+                            </select>
+                            <span class="error-message" id="errorTipoUsuario"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="codigoEstudiante">
+                                <i class="fas fa-id-badge"></i> Código del Estudiante
+                            </label>
+                            <input type="text" id="codigoEstudiante" name="codigoEstudiante" placeholder="Ej: 20241025">
+                            <span class="error-message" id="errorCodigoEstudiante"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="correoInstitucional">
+                                <i class="fas fa-envelope"></i> Correo Institucional
+                            </label>
+                            <input type="email" id="correoInstitucional" name="correoInstitucional" placeholder="Ej: nombre@fet.edu.co">
+                            <span class="error-message" id="errorCorreoInstitucional"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Datos deportivos -->
+                <div class="form-section">
+                    <h2><i class="fas fa-table-tennis"></i> Datos Deportivos</h2>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="implementosDisponibles">
+                                <i class="fas fa-table-tennis-paddle-ball"></i> Implementos Disponibles
+                            </label>
+                            <select id="implementosDisponibles" name="implementosDisponibles">
+                                <option value="">Seleccione una opción</option>
+                                <option value="raqueta">Raqueta</option>
+                                <option value="ping-pong">Ping Pong</option>
+                                <option value="malla">Malla</option>
+                            </select>
+                            <span class="error-message" id="errorImplementosDisponibles"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cantidad">
+                                <i class="fas fa-sort-numeric-up"></i> Cantidad
+                            </label>
+                            <select id="cantidad" name="cantidad">
+                                <option value="">Seleccione una opción</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                            </select>
+                            <span class="error-message" id="errorCantidad"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-paper-plane"></i> Registrar Jugador
+                </button>
+
+                <div class="success-message" id="mensajeExito">
+                    <i class="fas fa-check-circle"></i>
+                    ¡Registro exitoso! El jugador ha sido registrado en la bodega deportiva.
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script3.js"></script>
+</body>
+</html>
