@@ -2,25 +2,46 @@ const API = 'http://localhost:5000/api';
 
 document.addEventListener('DOMContentLoaded', function() {
 
-    // Verificar sesión
+    // Verificar sesión Y que sea Admin
     const usuarioSesion = sessionStorage.getItem('usuarioFET');
     if (!usuarioSesion) {
         window.location.href = '/inicio_de_usuario_y_registro/index.html';
         return;
     }
 
-    // Mostrar nombre del admin en sidebar
     const usuario = JSON.parse(usuarioSesion);
+
+    // Si no es Admin, lo manda de vuelta al inicio
+    if (usuario.tipo !== 'Admin') {
+        alert('Acceso restringido al administrador.');
+        sessionStorage.removeItem('usuarioFET');
+        window.location.href = '/inicio_de_usuario_y_registro/index.html';
+        return;
+    }
+
+    // Mostrar nombre del admin en sidebar
     const adminNombre = document.querySelector('.sidebar-header h2');
     if (adminNombre) adminNombre.textContent = usuario.nombre;
 
+    // Helper: fetch autenticado con el id del admin
+    function fetchAdmin(url, options = {}) {
+        return fetch(url, {
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Admin-Id': usuario.id,
+                ...(options.headers || {})
+            }
+        });
+    }
+
     // Elementos del DOM
-    const sidebar     = document.getElementById('sidebar');
-    const overlay     = document.getElementById('overlay');
-    const menuToggle  = document.getElementById('menuToggle');
-    const navItems    = document.querySelectorAll('.nav-item');
-    const sections    = document.querySelectorAll('.content-section');
-    const logoutBtn   = document.getElementById('logoutBtn');
+    const sidebar    = document.getElementById('sidebar');
+    const overlay    = document.getElementById('overlay');
+    const menuToggle = document.getElementById('menuToggle');
+    const navItems   = document.querySelectorAll('.nav-item');
+    const sections   = document.querySelectorAll('.content-section');
+    const logoutBtn  = document.getElementById('logoutBtn');
 
     // Cargar datos iniciales
     cargarDashboard();
@@ -43,8 +64,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (window.innerWidth <= 968) cerrarSidebar();
 
             switch(targetSection) {
-                case 'dashboard':  cargarDashboard(); break;
-                case 'usuarios':   cargarUsuarios();  break;
+                case 'dashboard': cargarDashboard(); break;
+                case 'usuarios':  cargarUsuarios();  break;
             }
         });
     });
@@ -73,13 +94,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // ── Cargar Dashboard ──────────────────────────────────
     async function cargarDashboard() {
         try {
-            const res      = await fetch(`${API}/usuarios`);
+            const res      = await fetchAdmin(`${API}/usuarios`);
             const respuesta = await res.json();
             const usuarios  = respuesta.usuarios || [];
 
             document.getElementById('totalUsuarios').textContent = usuarios.length;
 
-            // Actividad reciente — últimos 5 usuarios registrados
             const activityList = document.getElementById('recentActivity');
             if (usuarios.length === 0) {
                 activityList.innerHTML = '<p class="no-data">No hay actividad reciente</p>';
@@ -104,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ── Cargar Usuarios ───────────────────────────────────
     async function cargarUsuarios() {
         try {
-            const res       = await fetch(`${API}/usuarios`);
+            const res       = await fetchAdmin(`${API}/usuarios`);
             const respuesta = await res.json();
             let usuarios    = respuesta.usuarios || [];
 
@@ -161,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!confirm('¿Estás seguro de eliminar este usuario?')) return;
 
         try {
-            const res = await fetch(`${API}/usuarios/${id}`, { method: 'DELETE' });
+            const res = await fetchAdmin(`${API}/usuarios/${id}`, { method: 'DELETE' });
             const respuesta = await res.json();
 
             if (res.ok) {
