@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const formulario = document.getElementById('formularioTenis');
+    const formulario = document.getElementById('formularioFutbol');
     const mensajeExito = document.getElementById('mensajeExito');
 
     // Elementos de validación
@@ -31,42 +31,45 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Limpiar errores en tiempo real para campos de texto
-    programa.addEventListener('input', function() {
-        if (programa.value.trim()) {
-            limpiarError(errorPrograma);
-            programa.classList.remove('error');
-        }
-    });
-
+    // Validación en tiempo real para código del estudiante
     codigoEstudiante.addEventListener('input', function() {
-        if (codigoEstudiante.value.trim().length >= 5) {
+        if (codigoEstudiante.value.trim() && codigoEstudiante.value.trim().length < 5) {
+            mostrarError(errorCodigoEstudiante, 'El código debe tener al menos 5 caracteres');
+            codigoEstudiante.classList.add('error');
+        } else {
             limpiarError(errorCodigoEstudiante);
             codigoEstudiante.classList.remove('error');
         }
     });
 
+    // Validación en tiempo real para correo institucional
     correoInstitucional.addEventListener('input', function() {
         const valor = correoInstitucional.value.trim();
         const esCorreoValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor);
-        if (valor && esCorreoValido) {
+        if (valor && !esCorreoValido) {
+            mostrarError(errorCorreoInstitucional, 'Ingrese un correo institucional válido');
+            correoInstitucional.classList.add('error');
+        } else {
             limpiarError(errorCorreoInstitucional);
             correoInstitucional.classList.remove('error');
         }
     });
 
-    // Limpiar errores en tiempo real para campos select
-    const selectFields = [
-        { element: tipoUsuario, error: errorTipoUsuario },
-        { element: implementosDisponibles, error: errorImplementosDisponibles },
-        { element: cantidad, error: errorCantidad }
-    ];
+    // Limpiar errores en tiempo real para otros campos
+    [programa, tipoUsuario, codigoEstudiante, correoInstitucional, implementosDisponibles, cantidad].forEach(elemento => {
+        elemento.addEventListener('input', function() {
+            const errorElement = document.getElementById('error' + elemento.id.charAt(0).toUpperCase() + elemento.id.slice(1));
+            if (elemento.value.trim()) {
+                limpiarError(errorElement);
+                elemento.classList.remove('error');
+            }
+        });
 
-    selectFields.forEach(({ element, error }) => {
-        element.addEventListener('change', function() {
-            if (element.value) {
-                limpiarError(error);
-                element.classList.remove('error');
+        elemento.addEventListener('change', function() {
+            const errorElement = document.getElementById('error' + elemento.id.charAt(0).toUpperCase() + elemento.id.slice(1));
+            if (elemento.value) {
+                limpiarError(errorElement);
+                elemento.classList.remove('error');
             }
         });
     });
@@ -88,10 +91,6 @@ document.addEventListener('DOMContentLoaded', function() {
             esValido = false;
         } else if (nombre.value.trim().length < 5) {
             mostrarError(errorNombre, 'El nombre debe tener al menos 5 caracteres');
-            nombre.classList.add('error');
-            esValido = false;
-        } else if (nombre.value.trim().length > 50) {
-            mostrarError(errorNombre, 'El nombre no debe exceder 50 caracteres');
             nombre.classList.add('error');
             esValido = false;
         }
@@ -140,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Validar cantidad
-        if (!cantidad.value) {
+        if (cantidad.value === '') {
             mostrarError(errorCantidad, 'Seleccione una cantidad');
             cantidad.classList.add('error');
             esValido = false;
@@ -150,23 +149,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (esValido) {
             // Mostrar mensaje de éxito
             mensajeExito.classList.add('show');
-            
-            // Guardar datos en localStorage (simulación)
-            const datosJugador = {
-                nombre: nombre.value.trim(),
-                programa: programa.value.trim(),
-                tipoUsuario: tipoUsuario.value,
-                codigoEstudiante: codigoEstudiante.value.trim(),
-                correoInstitucional: correoInstitucional.value.trim(),
-                implementosDisponibles: implementosDisponibles.value,
-                cantidad: cantidad.value,
-                fechaRegistro: new Date().toISOString()
-            };
-            
-            // Almacenar en localStorage
-            const registrosTenis = JSON.parse(localStorage.getItem('registrosTenisFET') || '[]');
-            registrosTenis.push(datosJugador);
-            localStorage.setItem('registrosTenisFET', JSON.stringify(registrosTenis));
             
             // Limpiar formulario
             formulario.reset();
@@ -184,15 +166,11 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
                 mensajeExito.classList.remove('show');
             }, 5000);
-            
-            // Mostrar en consola los datos registrados (para depuración)
-            console.log('✅ Jugador registrado exitosamente:', datosJugador);
         } else {
             // Scroll al primer error
             const primerError = document.querySelector('.error');
             if (primerError) {
                 primerError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                primerError.focus();
             }
         }
     });
@@ -200,12 +178,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Funciones auxiliares
     function mostrarError(elemento, mensaje) {
         elemento.textContent = mensaje;
-        elemento.style.animation = 'fadeIn 0.3s ease';
     }
 
     function limpiarError(elemento) {
         elemento.textContent = '';
-        elemento.style.animation = '';
     }
 
     function limpiarTodosErrores() {
@@ -213,21 +189,17 @@ document.addEventListener('DOMContentLoaded', function() {
             errorImplementosDisponibles, errorCantidad].forEach(limpiarError);
     }
 
-    // Efectos hover mejorados en inputs y selects
-    const allInputs = document.querySelectorAll('input, select');
-    allInputs.forEach(input => {
+    // Efecto de hover en inputs
+    const inputs = document.querySelectorAll('input, select');
+    inputs.forEach(input => {
         input.addEventListener('mouseenter', function() {
             if (!this.classList.contains('error')) {
-                this.style.transform = 'translateY(-2px)';
-                this.style.borderColor = '#228b22';
+                this.style.transform = 'scale(1.02)';
             }
         });
         
         input.addEventListener('mouseleave', function() {
-            if (!this.classList.contains('error')) {
-                this.style.transform = 'translateY(0)';
-                this.style.borderColor = '#e0e0e0';
-            }
+            this.style.transform = 'scale(1)';
         });
     });
 
@@ -236,20 +208,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (logo) {
         logo.style.opacity = '0';
         setTimeout(() => {
-            logo.style.transition = 'opacity 0.8s ease, transform 0.3s ease';
+            logo.style.transition = 'opacity 0.8s ease';
             logo.style.opacity = '1';
         }, 300);
     }
-
-    // Validación para evitar números en el nombre
-    nombre.addEventListener('input', function() {
-        const valor = this.value;
-        if (/\d/.test(valor)) {
-            mostrarError(errorNombre, 'El nombre no debe contener números');
-            nombre.classList.add('error');
-        } else if (valor.trim().length >= 5) {
-            limpiarError(errorNombre);
-            nombre.classList.remove('error');
-        }
-    });
 });
