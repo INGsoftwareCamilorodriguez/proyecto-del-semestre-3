@@ -77,57 +77,46 @@
 
             <!-- Sección Dashboard -->
             <section class="content-section active" id="dashboard">
-                <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+                <h1>Dashboard</h1>
                 
                 <div class="metrics-grid">
                     <div class="metric-card">
-                        <div class="metric-icon users">
-                            <i class="fas fa-users"></i>
-                        </div>
                         <div class="metric-content">
                             <h3>Total Usuarios</h3>
                             <p class="metric-value" id="totalUsuarios">0</p>
                             <span class="metric-trend positive">
-                                <i class="fas fa-arrow-up"></i> 12%
+                                12%
                             </span>
                         </div>
                     </div>
 
                     <div class="metric-card">
-                        <div class="metric-icon futbol">
-                            <i class="fas fa-futbol"></i>
-                        </div>
                         <div class="metric-content">
                             <h3>Registros Fútbol</h3>
                             <p class="metric-value" id="totalFutbol">0</p>
                             <span class="metric-trend positive">
-                                <i class="fas fa-arrow-up"></i> 8%
+                                8%
                             </span>
                         </div>
                     </div>
 
                     <div class="metric-card">
-                        <div class="metric-icon tenis">
-                            <i class="fas fa-table-tennis"></i>
-                        </div>
                         <div class="metric-content">
                             <h3>Registros Tenis de Mesa</h3>
                             <p class="metric-value" id="totalTenis">0</p>
                             <span class="metric-trend positive">
-                                <i class="fas fa-arrow-up"></i> 15%
+                                15%
                             </span>
                         </div>
                     </div>
 
                     <div class="metric-card">
-                        <div class="metric-icon prestamos">
-                            <i class="fas fa-hand-holding"></i>
-                        </div>
+
                         <div class="metric-content">
                             <h3>Préstamos Activos</h3>
                             <p class="metric-value" id="prestamosActivos">0</p>
                             <span class="metric-trend negative">
-                                <i class="fas fa-arrow-down"></i> 3%
+                                3%
                             </span>
                         </div>
                     </div>
@@ -135,7 +124,7 @@
 
                 <!-- Últimos registros -->
                 <div class="recent-activity">
-                    <h2><i class="fas fa-clock"></i> Actividad Reciente</h2>
+                    <h2>Actividad Reciente</h2>
                     <div class="activity-list" id="recentActivity">
                         <p class="no-data">Cargando actividad reciente...</p>
                     </div>
@@ -145,16 +134,15 @@
             <!-- Sección Usuarios -->
             <section class="content-section" id="usuarios">
                 <div class="section-header">
-                    <h1><i class="fas fa-users"></i> Gestión de Usuarios</h1>
+                    Gestión de Usuarios</h1>
                     <button class="btn-add" id="btnAddUsuario">
-                        <i class="fas fa-plus"></i> Agregar Usuario
+                        Agregar Usuario
                     </button>
                 </div>
 
                 <!-- Buscador y filtros -->
                 <div class="controls-bar">
                     <div class="search-box">
-                        <i class="fas fa-search"></i>
                         <input type="text" id="searchUsuario" placeholder="Buscar usuario...">
                     </div>
                     <select id="filterTipo" class="filter-select">
@@ -191,15 +179,15 @@
 
             <!-- Sección Registros Deportivos -->
             <section class="content-section" id="registros">
-                <h1><i class="fas fa-clipboard-list"></i> Registros Deportivos</h1>
+                <h1>Registros Deportivos</h1>
                 
                 <!-- Tabs de deportes -->
                 <div class="tabs">
                     <button class="tab-btn active" data-deporte="futbol">
-                        <i class="fas fa-futbol"></i> Fútbol
+                        Fútbol
                     </button>
                     <button class="tab-btn" data-deporte="tenis">
-                        <i class="fas fa-table-tennis"></i> Tenis de Mesa
+                        Tenis de Mesa
                     </button>
                 </div>
 
@@ -251,9 +239,9 @@
             <!-- Sección Inventario -->
             <section class="content-section" id="inventario">
                 <div class="section-header">
-                    <h1><i class="fas fa-boxes"></i> Inventario Deportivo</h1>
+                    <h1>Inventario Deportivo</h1>
                     <button class="btn-add" id="btnAddInventario">
-                        <i class="fas fa-plus"></i> Agregar Elemento
+                        Agregar Elemento
                     </button>
                 </div>
 
@@ -295,10 +283,10 @@
                             </div>
                             <div class="modal-actions">
                                 <button type="submit" class="btn-save">
-                                    <i class="fas fa-save"></i> Guardar
+                                    Guardar
                                 </button>
                                 <button type="button" class="btn-cancel" id="btnCancelModal">
-                                    <i class="fas fa-times"></i> Cancelar
+                                    Cancelar
                                 </button>
                             </div>
                         </form>
@@ -308,11 +296,11 @@
 
             <!-- Sección Reportes -->
             <section class="content-section" id="reportes">
-                <h1><i class="fas fa-chart-bar"></i> Reportes y Estadísticas</h1>
+                <h1>Reportes y Estadísticas</h1>
                 
                 <div class="charts-grid">
                     <div class="chart-card">
-                        <h3><i class="fas fa-user-chart"></i> Usuarios por Tipo</h3>
+                        <h3>Usuarios por Tipo</h3>
                         <div class="chart-content" id="chartTipoUsuario">
                             <div class="chart-bar-container">
                                 <div class="chart-bar estudiante" id="barEstudiante">
@@ -332,7 +320,7 @@
                     </div>
 
                     <div class="chart-card">
-                        <h3><i class="fas fa-chart-pie"></i> Deportes Más Practicados</h3>
+                        <h3>Deportes Más Practicados</h3>
                         <div class="chart-content" id="chartDeportes">
                             <div class="simple-pie-chart">
                                 <div class="pie-segment futbol" id="pieFutbol">
@@ -346,7 +334,7 @@
                     </div>
 
                     <div class="chart-card">
-                        <h3><i class="fas fa-chart-line"></i> Registros por Mes</h3>
+                        <h3>Registros por Mes</h3>
                         <div class="chart-content" id="chartMensual">
                             <div class="monthly-bars">
                                 <div class="month-bar" style="height: 60%"><span>Ene</span></div>
@@ -369,15 +357,14 @@
     <!-- Modal de confirmación -->
     <div class="modal" id="modalConfirm">
         <div class="modal-content confirm-modal">
-            <i class="fas fa-exclamation-triangle warning-icon"></i>
             <h3>¿Confirmar eliminación?</h3>
             <p>Esta acción no se puede deshacer</p>
             <div class="modal-actions">
                 <button class="btn-delete" id="btnConfirmDelete">
-                    <i class="fas fa-trash"></i> Eliminar
+                    Eliminar
                 </button>
                 <button class="btn-cancel" id="btnCancelDelete">
-                    <i class="fas fa-times"></i> Cancelar
+                    Cancelar
                 </button>
             </div>
         </div>

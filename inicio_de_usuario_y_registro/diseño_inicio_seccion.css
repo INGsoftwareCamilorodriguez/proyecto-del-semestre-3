@@ -295,7 +295,6 @@ nav ul li a:hover::after { width: 100%; }
 .register-section {
   margin-top: 2rem;
   text-align: center;
-  border-top: 1px dashed #cbd5cb;
   padding-top: 1.8rem;
 }
 
@@ -368,10 +367,6 @@ footer {
 .footer-section ul li { margin-bottom: 8px; color: #ddd; font-size: 0.9rem; }
 .footer-section ul li a { color: #ddd; text-decoration: none; transition: color 0.3s; }
 .footer-section ul li a:hover { color: #fdbb2d; }
-
-.social-links { display: flex; gap: 15px; }
-.social-links a { color: white; font-size: 1.4rem; transition: color 0.3s; }
-.social-links a:hover { color: #fdbb2d; }
 
 .copyright {
   text-align: center;

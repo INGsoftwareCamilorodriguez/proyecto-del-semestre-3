@@ -108,7 +108,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             activityList.innerHTML = usuarios.slice(0, 5).map(u => `
                 <div class="activity-item">
-                    <i class="fas fa-user-plus"></i>
                     <div>
                         <strong>${u.nombre}</strong> se registró como ${u.tipo}
                         <br><small>${u.programa}</small>
@@ -159,10 +158,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>
                         <div class="action-btns">
                             <button class="btn-edit" title="Editar">
-                                <i class="fas fa-edit"></i>
                             </button>
                             <button class="btn-delete" onclick="eliminarUsuario(${u.id})" title="Eliminar">
-                                <i class="fas fa-trash"></i>
                             </button>
                         </div>
                     </td>
