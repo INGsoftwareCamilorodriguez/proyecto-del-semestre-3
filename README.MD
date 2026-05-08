@@ -1,6 +1,6 @@
 # Bodega Deportiva FET
 
-Este es un sistema web para la gestión de la bodega deportiva de la Fundación de Educación Superior del Oriente Colombiano (FET). Permite el registro de usuarios, el inicio de sesión, y un panel de administración desde donde se pueden ver y eliminar usuarios registrados.
+Este es un proyecto web para la gestión de la bodega deportiva de la Fundación Escuela Tecnologica de Neiva (FET). Permite el registro de usuarios, el inicio de sesión, y un panel de administración desde donde se pueden ver y eliminar usuarios registrados.
 
 El proyecto está dividido en dos partes: un backend construido con Python y Flask, y un frontend en HTML, CSS y JavaScript puro.
 
@@ -8,88 +8,58 @@ El proyecto está dividido en dos partes: un backend construido con Python y Fla
 
 ## Lo que necesitas tener instalado
 
-Antes de correr el proyecto, asegúrate de tener instalado lo siguiente en tu computadora.
+para el funcionamiento de este proyecto necesita las siguientes herramientas
 
-**Python 3.10 o superior**
-Descárgalo desde https://www.python.org/downloads. Durante la instalación marca la opción "Add Python to PATH".
+Python 3.10: se descárga de https://www.python.org/downloads
 
-**MySQL 8.0 o superior**
-Puedes descargarlo desde https://dev.mysql.com/downloads/mysql. También puedes usar XAMPP si ya lo tienes, viene con MySQL incluido.
+MySQL 8.0: se descárga de https://dev.mysql.com/downloads/mysql. 
 
-**MySQL Workbench** (opcional pero recomendado)
-Es la interfaz gráfica para manejar la base de datos. Descárgalo desde https://dev.mysql.com/downloads/workbench.
+XAMPP 8.3.12: se descárga de https://www.apachefriends.org/es/download.html
 
-**Visual Studio Code**
-El editor recomendado para este proyecto. Descárgalo desde https://code.visualstudio.com.
-
-Dentro de VS Code instala la extensión **Live Server** de Ritwick Dey. La encuentras buscándola en el panel de extensiones (Ctrl + Shift + X).
-
----
-
-## Clonar el repositorio
-
-Abre una terminal y ejecuta:
-
-```
-git clone https://github.com/tu-usuario/proyecto-del-semestre-3.git
-cd proyecto-del-semestre-3
-```
+MySQL Workbench: se descárga de https://dev.mysql.com/downloads/workbench.
 
 ---
 
 ## Configurar el backend
 
-Entra a la carpeta del backend:
+para el backend se crea un archivo donde esta todo el backend del proyecto. Y el archivo se llama backend, a continuacion como debe configurar desde la terminal de:
+
+1. primero se determina la ubicacion del la descarga del frameword:
 
 ```
 cd backend
 ```
 
-Instala las dependencias del proyecto con:
+2. se instala las dependencias del proyecto con:
 
 ```
 pip install flask flask-cors mysql-connector-python bcrypt
 ```
 
-O si el proyecto tiene un archivo requirements.txt:
+se tiene que crear un archivo para colocar los datos de mysql `config.py`: y edítalo con los datos de tu mysql local:
 
 ```
-pip install -r requirements.txt
-```
-
-Ahora crea el archivo de configuración. En la carpeta backend vas a encontrar un archivo llamado `config.example.py`. Copia ese archivo y renómbralo a `config.py`:
-
-```
-copy config.example.py config.py
-```
-
-Abre `config.py` y edítalo con los datos de tu MySQL local:
-
-```python
 DB_CONFIG = {
     'host':     'localhost',
     'user':     'root',
-    'password': 'tu_contraseña_de_mysql',
+    'password': '',
     'database': 'bodega_fet'
 }
 ```
-
-Si tu MySQL no tiene contraseña (por ejemplo en XAMPP), deja el campo password como cadena vacía.
-
 ---
 
 ## Crear la base de datos
 
-Abre MySQL Workbench o tu gestor de MySQL preferido y ejecuta el siguiente script completo. Esto crea la base de datos y todas las tablas necesarias:
+en mysql workbench crea un script para crea la base de datos y este es el codigo:
 
 ```sql
-CREATE DATABASE IF NOT EXISTS bodega_fet
+CREATE DATABASE bodega_fet
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
 USE bodega_fet;
 
-CREATE TABLE IF NOT EXISTS usuarios (
+CREATE TABLE usuarios (
     id          INT AUTO_INCREMENT PRIMARY KEY,
     nombre      VARCHAR(100)  NOT NULL,
     programa    VARCHAR(100)  NOT NULL,
@@ -97,12 +67,11 @@ CREATE TABLE IF NOT EXISTS usuarios (
     correo      VARCHAR(100)  NOT NULL UNIQUE,
     contrasena  VARCHAR(255)  NOT NULL,
     tipo        ENUM('Estudiante','Docente','Visitante','Admin') DEFAULT 'Estudiante',
-    genero      ENUM('Masculino','Femenino','Otro') DEFAULT NULL,
     activo      TINYINT(1)    DEFAULT 1,
     creado_en   TIMESTAMP     DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS inventario (
+CREATE TABLE inventario (
     id          INT AUTO_INCREMENT PRIMARY KEY,
     nombre      VARCHAR(100)  NOT NULL,
     categoria   ENUM('Futbol','Tenis de Mesa','General') NOT NULL,
@@ -111,7 +80,7 @@ CREATE TABLE IF NOT EXISTS inventario (
     creado_en   TIMESTAMP     DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS prestamos (
+CREATE TABLE prestamos (
     id                INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id        INT NOT NULL,
     inventario_id     INT NOT NULL,
@@ -122,7 +91,7 @@ CREATE TABLE IF NOT EXISTS prestamos (
     FOREIGN KEY (inventario_id) REFERENCES inventario(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS registros_deportivos (
+CREATE TABLE registros_deportivos (
     id              INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id      INT NOT NULL,
     deporte         ENUM('Futbol','Tenis de Mesa') NOT NULL,
@@ -136,25 +105,23 @@ CREATE TABLE IF NOT EXISTS registros_deportivos (
 
 ## Crear el usuario administrador
 
-El administrador no se crea desde el formulario de registro. Tienes que crearlo directamente en la base de datos siguiendo estos pasos.
+en el caso del administrador no se creo desde el formulario de registro se crea en la base de datos
 
-Primero genera el hash de la contraseña que quieras usar. Crea un archivo temporal llamado `generar_hash.py` dentro de la carpeta backend con este contenido:
+primero genera el hash de la contraseña que quieras usar. Crea un archivo temporal llamado `generar_hash.py` ahi dentro se tiene que colocar:
 
 ```python
 import bcrypt
 
-pw = "Admin123!"  # cambia esto por la contraseña que quieras
+pw = "Admin123!"  # aqui se cambia la focking contraseña
 hash_pw = bcrypt.hashpw(pw.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 print(hash_pw)
 ```
-
-Ejecútalo desde la terminal:
-
+despues se ejecuta esto:
 ```
 python generar_hash.py
 ```
 
-Copia el resultado que aparece en la terminal. Luego ve a MySQL Workbench y ejecuta este INSERT, reemplazando el hash con el que copiaste:
+la contraseña cifrada que salio en la terminal se debe modificar en el msyql con el siguiente comando
 
 ```sql
 USE bodega_fet;
@@ -165,19 +132,16 @@ VALUES (
   'Administracion',
   'ADMIN001',
   'admin@fet.edu.co',
-  '$2b$12$AQUI_VA_EL_HASH_QUE_GENERASTE',
+  'aca se debe colocar la focking contraseña cifrada',
   'Admin'
 );
 ```
 
-Puedes verificar que quedó bien con:
+y pues para verificar es con este comando:
 
 ```sql
 SELECT id, nombre, correo, tipo FROM usuarios WHERE tipo = 'Admin';
 ```
-
-Debe aparecer una fila con el administrador. Después de esto puedes borrar el archivo `generar_hash.py`.
-
 ---
 
 ## Correr el proyecto
@@ -195,20 +159,12 @@ Debes ver algo como esto:
 Servidor Bodega FET corriendo en http://localhost:5000
 ```
 
-Deja esa terminal abierta. El backend debe estar corriendo todo el tiempo que uses la aplicación.
-
-Ahora abre VS Code, busca el archivo `inicio_pagina/inicio.html`, haz clic derecho sobre él y selecciona "Open with Live Server". Eso abre el frontend en el navegador en una dirección como `http://127.0.0.1:5500`.
-
----
-
-## Credenciales del administrador por defecto
-
-Estas son las credenciales con las que puedes ingresar al panel de administración, a menos que hayas usado datos distintos al crear el administrador:
+pero siempre y cuando el xampp este prendido, el xampp tiene que estar 
 
 ```
-Correo:     admin@fet.edu.co
-Contraseña: Admin123!
+mysql start 3306
 ```
+
 
 ---
 
@@ -236,10 +192,25 @@ proyecto-del-semestre-3/
 
 ---
 
-## Notas importantes
+## una cosa importante
 
-El archivo `config.py` nunca debe subirse al repositorio porque contiene datos sensibles como la contraseña de tu base de datos. Ya está en el `.gitignore` del proyecto para evitar esto.
+El archivo `config.py`, `.pyc`, `generar_hash.py` no se debe subir al repositorio porque contiene informacion delicata y inesesaria para el repo
 
-Si al correr el proyecto ves un error de conexion a la base de datos, revisa que MySQL esté corriendo y que los datos en `config.py` sean correctos.
+para eso se crea el `.gitignore` y la estructura del `.gitignore` es la siguiente":
 
-Si usas XAMPP, asegúrate de que el servicio de MySQL esté activo desde el panel de control de XAMPP antes de correr el backend.
+```
+# Python
+__pycache__/
+*.pyc
+
+# Archivos sensibles
+backend/config.py
+backend/generar_hash.py
+
+# VS Code
+.vscode/
+
+# Sistema operativo
+Thumbs.db
+.DS_Store
+```
