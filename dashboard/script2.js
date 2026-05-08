@@ -154,12 +154,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>${u.nombre}</td>
                     <td>${u.programa}</td>
                     <td><span class="badge">${u.tipo}</span></td>
-                    <td>${u.genero || '-'}</td>
                     <td>
                         <div class="action-btns">
-                            <button class="btn-edit" title="Editar">
-                            </button>
                             <button class="btn-delete" onclick="eliminarUsuario(${u.id})" title="Eliminar">
+                            <i class="fas fa-trash"></i>
                             </button>
                         </div>
                     </td>

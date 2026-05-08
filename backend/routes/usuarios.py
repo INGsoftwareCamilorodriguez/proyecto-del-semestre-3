@@ -155,7 +155,7 @@ def listar_usuarios():
         db = get_db()
         cursor = db.cursor(dictionary=True)
         cursor.execute(
-            """SELECT id, nombre, programa, codigo, correo, tipo, genero
+            """SELECT id, nombre, programa, codigo, correo, tipo
                FROM usuarios WHERE activo = 1 AND tipo != 'Admin'
                ORDER BY creado_en DESC"""
         )
