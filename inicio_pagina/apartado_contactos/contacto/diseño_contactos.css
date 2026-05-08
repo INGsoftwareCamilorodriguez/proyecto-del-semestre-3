@@ -1,10 +1,10 @@
 :root {
-  --primary-blue: #0f172a;
-  --accent-blue: #1e40af;
-  --light-blue: #3b82f6;
+  --primary-blue: hsl(222, 47%, 11%);
+  --accent-blue: #0b9d54;
+  --light-blue: #0b9d54;
   --neon-blue: #ffffff;
   --dark-bg: #0a0a0a;
-  --card-bg: #3f6ed4;
+  --card-bg: #0b9d54;
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
   --border-color: rgba(59, 130, 246, 0.2);
@@ -282,7 +282,7 @@ body::before {
   border-radius: 30px;
   padding: 3rem;
   border: 1px solid var(--border-color);
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 25px 60px rgba(252, 87, 87, 0.3);
   position: relative;
   overflow: hidden;
   text-align: center;
