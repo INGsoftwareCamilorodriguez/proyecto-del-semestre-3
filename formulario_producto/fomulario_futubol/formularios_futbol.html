@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro Fútbol FET | Fundación Escuela Tecnológica</title>
-    <link rel="stylesheet" href="/formulario_producto/fomulario_futubol/styles.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
- 
-  <!-- ===== HEADER ===== -->
+
   <header>
     <div class="container">
       <div class="header-content">
@@ -22,7 +21,7 @@
         <nav>
           <ul>
             <li><a href="/inicio_pagina/apartado_principal/inicio.html">Inicio</a></li>
-            <li><a href="">elementos deportivos</a></li>
+            <li><a href="">Elementos deportivos</a></li>
             <li><a href="/inicio_pagina/apartado_contactos/contacto/contactos.html">Atención al cliente</a></li>
             <li><a href="/inicio_de_usuario_y_registro/index.html">Cerrar sesión</a></li>
           </ul>
@@ -30,82 +29,72 @@
       </div>
     </div>
   </header>
- 
-  <!-- ===== MAIN: FORMULARIO ===== -->
+
   <main>
     <div class="form-wrapper">
       <div class="form-card">
- 
+
         <div class="logo-container">
           <img src="/formulario_producto/fomulario_futubol/fet 2.jpg" alt="Logo FET" class="logo-image">
         </div>
- 
-        <h1>
-          Registro Deportivo de Fútbol
-        </h1>
+
+        <h1>Registro Deportivo de Fútbol</h1>
         <p class="subtitle">Bodega Deportiva FET</p>
- 
+
         <form id="formularioFutbol" novalidate>
- 
-          <!-- Datos personales -->
+
           <div class="form-section">
             <h2>Datos Personales</h2>
- 
+
             <div class="form-group">
               <label for="nombre">Nombres Completos</label>
               <input type="text" id="nombre" name="nombre" placeholder="Ej: Juan Carlos Pérez">
               <span class="error-message" id="errorNombre"></span>
             </div>
- 
+
             <div class="form-group">
               <label for="programa">Programa Académico</label>
               <input type="text" id="programa" name="programa" placeholder="Ej: Ingeniería de Software">
               <span class="error-message" id="errorPrograma"></span>
             </div>
- 
+
             <div class="form-row">
               <div class="form-group">
                 <label for="tipoUsuario">Tipo de Usuario</label>
                 <select id="tipoUsuario" name="tipoUsuario">
                   <option value="">Seleccione una opción</option>
-                  <option value="estudiante">Estudiante</option>
-                  <option value="docente">Docente</option>
-                  <option value="visitante">Visitante</option>
+                  <option value="Estudiante">Estudiante</option>
+                  <option value="Docente">Docente</option>
+                  <option value="Visitante">Visitante</option>
                 </select>
                 <span class="error-message" id="errorTipoUsuario"></span>
               </div>
- 
+
               <div class="form-group">
                 <label for="codigoEstudiante">Código del Estudiante</label>
                 <input type="text" id="codigoEstudiante" name="codigoEstudiante" placeholder="Ej: 20241025">
                 <span class="error-message" id="errorCodigoEstudiante"></span>
               </div>
             </div>
- 
+
             <div class="form-group">
               <label for="correoInstitucional">Correo Institucional</label>
               <input type="email" id="correoInstitucional" name="correoInstitucional" placeholder="Ej: nombre@fet.edu.co">
               <span class="error-message" id="errorCorreoInstitucional"></span>
             </div>
           </div>
- 
-          <!-- Datos deportivos -->
+
           <div class="form-section">
             <h2>Datos Deportivos</h2>
- 
             <div class="form-row">
               <div class="form-group">
                 <label for="implementosDisponibles">Implementos Disponibles</label>
                 <select id="implementosDisponibles" name="implementosDisponibles">
                   <option value="">Seleccione una opción</option>
-                  <option value="balon">Balón</option>
-                  <option value="uniforme">Uniforme</option>
-                  <option value="conos">Conos</option>
-                  <option value="canilleras">Canilleras</option>
                 </select>
                 <span class="error-message" id="errorImplementosDisponibles"></span>
               </div>
- 
+
               <div class="form-group">
                 <label for="cantidad">Cantidad</label>
                 <select id="cantidad" name="cantidad">
@@ -125,21 +114,17 @@
               </div>
             </div>
           </div>
- 
-          <button type="submit" class="btn-submit">
-            Registrar Jugador
-          </button>
- 
+
+          <button type="submit" class="btn-submit">Registrar Jugador</button>
+
           <div class="success-message" id="mensajeExito">
-            ¡Registro exitoso! El jugador ha sido registrado en la bodega deportiva.
+            ¡Solicitud enviada! El administrador la revisará pronto.
           </div>
         </form>
- 
       </div>
     </div>
   </main>
- 
-  <!-- ===== FOOTER ===== -->
+
   <footer>
     <div class="container">
       <div class="footer-content">
@@ -150,9 +135,7 @@
         <div class="footer-section">
           <h3>Enlaces Rápidos</h3>
           <ul>
-            <li><a href="#inicio">Inicio</a></li>
-            <li><a href="#tipos">Tipos de elementos</a></li>
-            <li><a href="#aplicaciones">Aplicaciones</a></li>
+            <li><a href="/inicio_pagina/apartado_principal/inicio.html">Inicio</a></li>
           </ul>
         </div>
         <div class="footer-section">
@@ -163,15 +146,6 @@
             <li>Colombia</li>
           </ul>
         </div>
-        <div class="footer-section">
-          <h3>Síguenos</h3>
-          <div>
-            <a href="#"><i></i>FET</a>
-            <a href="#"><i></i></a>
-            <a href="#"><i></i></a>
-            <a href="#"><i></i></a>
-          </div>
-        </div>
       </div>
       <div class="copyright">
         <p>@ 2026 Bodega Fet. Todos los derechos reservados.</p>
@@ -179,6 +153,6 @@
     </div>
   </footer>
 
-    <script src="/formulario_producto/fomulario_futubol/scripts.js"></script>
+  <script src="/formulario_producto/fomulario_futubol/scripts.js"></script>
 </body>
 </html>
