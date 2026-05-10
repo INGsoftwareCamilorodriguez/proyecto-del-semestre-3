@@ -2,7 +2,6 @@ const API = 'http://localhost:5000/api';
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    // ── Verificar sesión y tipo Admin ──────────────────────
     const usuarioSesion = sessionStorage.getItem('usuarioFET');
     if (!usuarioSesion) {
         window.location.href = '/inicio_de_usuario_y_registro/index.html';
@@ -16,11 +15,9 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    // Mostrar nombre del admin
     const adminNombre = document.querySelector('.sidebar-header h2');
     if (adminNombre) adminNombre.textContent = usuario.nombre;
 
-    // ── Helper fetch autenticado ───────────────────────────
     function fetchAdmin(url, options = {}) {
         return fetch(url, {
             ...options,
@@ -32,14 +29,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ── Variables de estado inventario ────────────────────
     let inventarioEditandoId  = null;
-    let categoriaTabActiva    = 'Fútbol'; // FIX #5: tracking de tab activo en inventario
-
-    // ── Variables de estado solicitudes ──────────────────
+    let categoriaTabActiva    = 'Fútbol';
     let solicitudRechazandoId = null;
 
-    // ── DOM general ──────────────────────────────────────
     const sidebar    = document.getElementById('sidebar');
     const overlay    = document.getElementById('overlay');
     const menuToggle = document.getElementById('menuToggle');
@@ -47,47 +40,39 @@ document.addEventListener('DOMContentLoaded', function () {
     const sections   = document.querySelectorAll('.content-section');
     const logoutBtn  = document.getElementById('logoutBtn');
 
-    // ── Carga inicial ─────────────────────────────────────
     cargarDashboard();
     cargarUsuarios();
     actualizarBadgeSolicitudes();
-
-    // Refresca el badge cada 60 segundos
     setInterval(actualizarBadgeSolicitudes, 60000);
 
-    // ── Navegación sidebar ────────────────────────────────
     navItems.forEach(item => {
         item.addEventListener('click', function (e) {
             e.preventDefault();
             const target = this.getAttribute('data-section');
-
             navItems.forEach(n => n.classList.remove('active'));
             this.classList.add('active');
             sections.forEach(s => {
                 s.classList.remove('active');
                 if (s.id === target) s.classList.add('active');
             });
-
             if (window.innerWidth <= 968) cerrarSidebar();
-
             switch (target) {
-                case 'dashboard':          cargarDashboard();          break;
-                case 'usuarios':           cargarUsuarios();            break;
-                case 'solicitudes':        cargarSolicitudes();         break;
-                case 'registros':          cargarRegistrosDeportivos(); break; // FIX #4
-                case 'inventario':         cargarInventarioPorTab();    break; // FIX #5
+                case 'dashboard':   cargarDashboard();           break;
+                case 'usuarios':    cargarUsuarios();             break;
+                case 'solicitudes': cargarSolicitudes();          break;
+                case 'registros':   cargarRegistrosDeportivos();  break;
+                case 'inventario':  cargarInventarioPorTab();     break;
+                case 'reportes':    cargarReportes();             break;
             }
         });
     });
 
-    // Toggle menú móvil
     menuToggle.addEventListener('click', () => {
         sidebar.classList.toggle('active');
         overlay.classList.toggle('active');
     });
     overlay.addEventListener('click', cerrarSidebar);
 
-    // Cerrar sesión
     logoutBtn.addEventListener('click', e => {
         e.preventDefault();
         if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
@@ -96,7 +81,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Búsqueda y filtros usuarios
     document.getElementById('searchUsuario').addEventListener('input', cargarUsuarios);
     document.getElementById('filterTipo').addEventListener('change', cargarUsuarios);
 
@@ -108,18 +92,14 @@ document.addEventListener('DOMContentLoaded', function () {
             const res       = await fetchAdmin(`${API}/usuarios`);
             const respuesta = await res.json();
             const usuarios  = respuesta.usuarios || [];
-
             document.getElementById('totalUsuarios').textContent = usuarios.length;
-
-            // FIX #2/3: préstamos activos — estado es 'Aprobado' (sin 'a')
             try {
                 const resSol  = await fetchAdmin(`${API}/solicitudes`);
                 const dataSol = await resSol.json();
                 const todas   = dataSol.solicitudes || [];
-                const activos = todas.filter(s => s.estado === 'Aprobado').length; // FIX #2
+                const activos = todas.filter(s => s.estado === 'Aprobado').length;
                 document.getElementById('prestamosActivos').textContent = activos;
             } catch (_) {}
-
             const activityList = document.getElementById('recentActivity');
             if (usuarios.length === 0) {
                 activityList.innerHTML = '<p class="no-data">No hay actividad reciente</p>';
@@ -147,10 +127,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const res       = await fetchAdmin(`${API}/usuarios`);
             const respuesta = await res.json();
             let usuarios    = respuesta.usuarios || [];
-
             const searchTerm = document.getElementById('searchUsuario').value.toLowerCase();
             const filterTipo = document.getElementById('filterTipo').value;
-
             if (searchTerm) {
                 usuarios = usuarios.filter(u =>
                     u.nombre.toLowerCase().includes(searchTerm) ||
@@ -160,7 +138,6 @@ document.addEventListener('DOMContentLoaded', function () {
             if (filterTipo) {
                 usuarios = usuarios.filter(u => u.tipo === filterTipo);
             }
-
             const tbody = document.getElementById('usuariosTableBody');
             if (usuarios.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" class="no-data">No se encontraron usuarios</td></tr>';
@@ -203,23 +180,129 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
-    // ══════════════════════════════════════════════════════
-    //  SOLICITUDES  (FIX #1 + #2 + #3)
-    // ══════════════════════════════════════════════════════
+    // ── Modal Agregar Usuario ─────────────────────────────
+    if (!document.getElementById('modalCrearUsuario')) {
+        document.body.insertAdjacentHTML('beforeend', `
+        <div class="modal" id="modalCrearUsuario">
+            <div class="modal-content">
+                <h3><i class="fas fa-user-plus" style="color:var(--verde-principal)"></i> Agregar Usuario</h3>
+                <div id="errorCrearUsuario" style="display:none;background:#fce4ec;color:#d32f2f;
+                    padding:10px;border-radius:8px;margin:10px 0;font-size:0.9em"></div>
+                <div class="form-group">
+                    <label>Nombre completo</label>
+                    <input type="text" id="cuNombre" placeholder="Ej: Juan García">
+                </div>
+                <div class="form-group">
+                    <label>Programa académico</label>
+                    <input type="text" id="cuPrograma" placeholder="Ej: Ingeniería de Sistemas">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Código</label>
+                        <input type="text" id="cuCodigo" placeholder="Ej: 20241234">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de usuario</label>
+                        <select id="cuTipo">
+                            <option value="Estudiante">Estudiante</option>
+                            <option value="Docente">Docente</option>
+                            <option value="Visitante">Visitante</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Correo electrónico</label>
+                    <input type="email" id="cuCorreo" placeholder="usuario@correo.com">
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="cuContrasena" placeholder="Mín. 8 caracteres, 1 número, 1 especial">
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-save" id="btnConfirmCrearUsuario">
+                        <i class="fas fa-user-plus"></i> Crear Usuario
+                    </button>
+                    <button class="btn-cancel" id="btnCancelCrearUsuario">Cancelar</button>
+                </div>
+            </div>
+        </div>`);
+    }
 
-    // Badge en sidebar (pendientes)
+    // Inyectar botón en section-header de usuarios
+    const secHeader = document.querySelector('#usuarios .section-header');
+    if (secHeader && !document.getElementById('btnAddUsuario')) {
+        const btn = document.createElement('button');
+        btn.className = 'btn-add';
+        btn.id = 'btnAddUsuario';
+        btn.innerHTML = '<i class="fas fa-user-plus"></i> Agregar Usuario';
+        secHeader.appendChild(btn);
+    }
+
+    document.addEventListener('click', function (e) {
+        if (e.target.closest('#btnAddUsuario')) {
+            document.getElementById('errorCrearUsuario').style.display = 'none';
+            document.getElementById('cuNombre').value = '';
+            document.getElementById('cuPrograma').value = '';
+            document.getElementById('cuCodigo').value = '';
+            document.getElementById('cuCorreo').value = '';
+            document.getElementById('cuContrasena').value = '';
+            document.getElementById('cuTipo').value = 'Estudiante';
+            document.getElementById('modalCrearUsuario').classList.add('active');
+        }
+    });
+
+    document.getElementById('btnCancelCrearUsuario').addEventListener('click', () => {
+        document.getElementById('modalCrearUsuario').classList.remove('active');
+    });
+
+    document.getElementById('btnConfirmCrearUsuario').addEventListener('click', async () => {
+        const errorBox = document.getElementById('errorCrearUsuario');
+        errorBox.style.display = 'none';
+        const payload = {
+            nombre:     document.getElementById('cuNombre').value.trim(),
+            programa:   document.getElementById('cuPrograma').value.trim(),
+            codigo:     document.getElementById('cuCodigo').value.trim(),
+            correo:     document.getElementById('cuCorreo').value.trim(),
+            contrasena: document.getElementById('cuContrasena').value,
+            tipo:       document.getElementById('cuTipo').value
+        };
+        try {
+            const res  = await fetchAdmin(`${API}/usuarios/crear`, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (res.ok) {
+                document.getElementById('modalCrearUsuario').classList.remove('active');
+                mostrarToast('Usuario creado exitosamente', 'success');
+                cargarUsuarios();
+                cargarDashboard();
+            } else {
+                let msg = data.mensaje || '';
+                if (data.errores) msg = Object.values(data.errores).join(' · ');
+                errorBox.textContent = msg || 'Error al crear usuario';
+                errorBox.style.display = 'block';
+            }
+        } catch (err) {
+            errorBox.textContent = 'Error de conexión con el servidor';
+            errorBox.style.display = 'block';
+        }
+    });
+
+    // ══════════════════════════════════════════════════════
+    //  SOLICITUDES
+    // ══════════════════════════════════════════════════════
     async function actualizarBadgeSolicitudes() {
         try {
             const res   = await fetchAdmin(`${API}/solicitudes`);
             const data  = await res.json();
             const todas = data.solicitudes || [];
-            const pendientes  = todas.filter(s => s.estado === 'Pendiente').length;
-            const rechazadas  = todas.filter(s => s.estado === 'Rechazado').length; // FIX #3
-
+            const pendientes = todas.filter(s => s.estado === 'Pendiente').length;
+            const rechazadas = todas.filter(s => s.estado === 'Rechazado').length;
             const badge    = document.getElementById('badgeSolicitudes');
             const tabBadge = document.getElementById('tabBadgePendientes');
-            const tabBadgeRechazadas = document.getElementById('tabBadgeRechazadas'); // FIX #3
-
+            const tabBadgeRechazadas = document.getElementById('tabBadgeRechazadas');
             if (pendientes > 0) {
                 badge.style.display = 'inline-block';
                 badge.textContent   = pendientes;
@@ -227,8 +310,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 badge.style.display = 'none';
             }
             if (tabBadge) tabBadge.textContent = pendientes;
-
-            // FIX #3: badge en tab rechazadas
             if (tabBadgeRechazadas) {
                 if (rechazadas > 0) {
                     tabBadgeRechazadas.style.display = 'inline-block';
@@ -247,22 +328,16 @@ document.addEventListener('DOMContentLoaded', function () {
             const res   = await fetchAdmin(`${API}/solicitudes`);
             const data  = await res.json();
             const todas = data.solicitudes || [];
-
-            // FIX #2: estado es 'Aprobado' (no 'Aprobada')
-            const pendientes  = todas.filter(s => s.estado === 'Pendiente');
-            const aprobadas   = todas.filter(s => s.estado === 'Aprobado');  // FIX #2
-            const rechazadas  = todas.filter(s => s.estado === 'Rechazado'); // FIX #3
-
-            renderFilaSolicitudes('tbodyPendientes', pendientes, true,  false, false);
-            renderFilaSolicitudes('tbodyAprobadas',  aprobadas,  false, true,  false);
-            renderFilaRechazadas('tbodyRechazadas',  rechazadas);                       // FIX #3
+            const pendientes = todas.filter(s => s.estado === 'Pendiente');
+            const aprobadas  = todas.filter(s => s.estado === 'Aprobado');
+            const rechazadas = todas.filter(s => s.estado === 'Rechazado');
+            renderFilaSolicitudes('tbodyPendientes', pendientes, true,  false);
+            renderFilaSolicitudes('tbodyAprobadas',  aprobadas,  false, true);
+            renderFilaRechazadas('tbodyRechazadas',  rechazadas);
             renderFilaSolicitudesTodas('tbodyTodas', todas);
-
-            // Actualizar badges
             const badge    = document.getElementById('badgeSolicitudes');
             const tabBadge = document.getElementById('tabBadgePendientes');
             const tabBadgeRechazadas = document.getElementById('tabBadgeRechazadas');
-
             if (pendientes.length > 0) {
                 badge.style.display = 'inline-block';
                 badge.textContent   = pendientes.length;
@@ -270,7 +345,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 badge.style.display = 'none';
             }
             if (tabBadge) tabBadge.textContent = pendientes.length;
-
             if (tabBadgeRechazadas) {
                 if (rechazadas.length > 0) {
                     tabBadgeRechazadas.style.display = 'inline-block';
@@ -279,7 +353,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     tabBadgeRechazadas.style.display = 'none';
                 }
             }
-
         } catch (err) {
             console.error('Error cargando solicitudes:', err);
         }
@@ -320,7 +393,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }).join('');
     }
 
-    // FIX #3: render especial para rechazadas con columna "Motivo"
     function renderFilaRechazadas(tbodyId, lista) {
         const tbody = document.getElementById(tbodyId);
         if (!tbody) return;
@@ -363,7 +435,6 @@ document.addEventListener('DOMContentLoaded', function () {
         return isNaN(d) ? fecha : d.toLocaleDateString('es-CO', { day:'2-digit', month:'short', year:'numeric' });
     }
 
-    // Aprobar
     window.aprobarSolicitud = async function (id) {
         if (!confirm('¿Aprobar esta solicitud?')) return;
         try {
@@ -371,17 +442,13 @@ document.addEventListener('DOMContentLoaded', function () {
             const data = await res.json();
             if (res.ok) {
                 mostrarToast('Solicitud aprobada', 'success');
-                cargarSolicitudes();
-                cargarDashboard();
+                cargarSolicitudes(); cargarDashboard();
             } else {
                 mostrarToast(data.mensaje || 'Error al aprobar', 'error');
             }
-        } catch (err) {
-            mostrarToast('Error de conexión', 'error');
-        }
+        } catch (err) { mostrarToast('Error de conexión', 'error'); }
     };
 
-    // Abrir modal rechazo
     window.abrirModalRechazo = function (id) {
         solicitudRechazandoId = id;
         document.getElementById('motivoRechazo').value = '';
@@ -395,14 +462,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('btnConfirmRechazo').addEventListener('click', async () => {
         const motivo = document.getElementById('motivoRechazo').value.trim();
-        if (!motivo) {
-            alert('Escribe un motivo antes de rechazar.');
-            return;
-        }
+        if (!motivo) { alert('Escribe un motivo antes de rechazar.'); return; }
         try {
             const res = await fetchAdmin(`${API}/solicitudes/${solicitudRechazandoId}/rechazar`, {
                 method: 'PUT',
-                body: JSON.stringify({ mensaje: motivo }) // FIX #1: era { motivo }, debe ser { mensaje: motivo }
+                body: JSON.stringify({ mensaje: motivo })
             });
             const data = await res.json();
             if (res.ok) {
@@ -413,12 +477,9 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 mostrarToast(data.mensaje || 'Error al rechazar', 'error');
             }
-        } catch (err) {
-            mostrarToast('Error de conexión', 'error');
-        }
+        } catch (err) { mostrarToast('Error de conexión', 'error'); }
     });
 
-    // Devolver
     window.devolverSolicitud = async function (id) {
         if (!confirm('¿Marcar como devuelto?')) return;
         try {
@@ -426,22 +487,17 @@ document.addEventListener('DOMContentLoaded', function () {
             const data = await res.json();
             if (res.ok) {
                 mostrarToast('Elemento marcado como devuelto', 'success');
-                cargarSolicitudes();
-                cargarDashboard();
+                cargarSolicitudes(); cargarDashboard();
             } else {
                 mostrarToast(data.mensaje || 'Error al marcar devolución', 'error');
             }
-        } catch (err) {
-            mostrarToast('Error de conexión', 'error');
-        }
+        } catch (err) { mostrarToast('Error de conexión', 'error'); }
     };
 
-    // Tabs de solicitudes — ahora soporta 4 tabs (pendientes/aprobadas/rechazadas/todas)
     document.querySelectorAll('[data-tab]').forEach(btn => {
         btn.addEventListener('click', function () {
             document.querySelectorAll('[data-tab]').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
-
             const tab = this.getAttribute('data-tab');
             document.querySelectorAll('.tab-sol-content').forEach(c => c.classList.remove('active'));
             const tabEl = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
@@ -450,8 +506,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // ══════════════════════════════════════════════════════
-    //  REGISTROS DEPORTIVOS  (FIX #4)
-    //  Muestra solicitudes APROBADAS filtradas por categoría
+    //  REGISTROS DEPORTIVOS
     // ══════════════════════════════════════════════════════
     const DEPORTES_CATEGORIAS = {
         'futbol':     'Fútbol',
@@ -460,24 +515,19 @@ document.addEventListener('DOMContentLoaded', function () {
         'voleibol':   'Voleibol'
     };
 
-    async function cargarRegistrosDeportivos(deporteActivo = 'futbol') {
+    async function cargarRegistrosDeportivos() {
         try {
             const res   = await fetchAdmin(`${API}/solicitudes`);
             const data  = await res.json();
             const todas = data.solicitudes || [];
-            // Solo aprobadas
             const aprobadas = todas.filter(s => s.estado === 'Aprobado');
-
-            // Renderizar cada tab
             Object.entries(DEPORTES_CATEGORIAS).forEach(([clave, categoria]) => {
                 const tbody = document.getElementById('tbodyReg' +
                     clave.charAt(0).toUpperCase() + clave.slice(1));
                 if (!tbody) return;
-
                 const filtradas = aprobadas.filter(s =>
                     (s.categoria || '').toLowerCase() === categoria.toLowerCase()
                 );
-
                 if (!filtradas.length) {
                     tbody.innerHTML = `<tr><td colspan="5" class="no-data">No hay registros de ${categoria}</td></tr>`;
                     return;
@@ -497,7 +547,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Tabs registros deportivos — ahora maneja 4 tabs
     document.querySelectorAll('[data-deporte]').forEach(btn => {
         btn.addEventListener('click', function () {
             document.querySelectorAll('[data-deporte]').forEach(b => b.classList.remove('active'));
@@ -511,29 +560,22 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // ══════════════════════════════════════════════════════
-    //  INVENTARIO POR CATEGORÍA  (FIX #5)
+    //  INVENTARIO
     // ══════════════════════════════════════════════════════
-    const CATEGORIAS_INV = ['Fútbol', 'Baloncesto', 'Tenis de Mesa', 'Voleibol', 'General'];
-
     async function cargarInventarioPorTab(categoria = null) {
         const cat = categoria || categoriaTabActiva;
         categoriaTabActiva = cat;
-
         const grid = document.getElementById('inventoryGrid');
         if (!grid) return;
         grid.innerHTML = '<p class="no-data">Cargando inventario...</p>';
-
         try {
-            const catEncoded = encodeURIComponent(cat);
-            const res  = await fetchAdmin(`${API}/inventario?categoria=${catEncoded}`);
+            const res  = await fetchAdmin(`${API}/inventario?categoria=${encodeURIComponent(cat)}`);
             const data = await res.json();
             const items = data.inventario || data || [];
-
             if (!items.length) {
                 grid.innerHTML = `<p class="no-data">No hay elementos en la categoría ${cat}</p>`;
                 return;
             }
-
             grid.innerHTML = items.map(item => `
                 <div class="inventory-card">
                     <div class="inv-header">
@@ -549,53 +591,40 @@ document.addEventListener('DOMContentLoaded', function () {
                         </p>
                     </div>
                     <div class="action-btns" style="margin-top:15px">
-                        <button class="btn-edit" onclick="editarInventario(${item.id})" title="Editar">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn-delete" onclick="eliminarInventario(${item.id})" title="Eliminar">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <button class="btn-edit" onclick="editarInventario(${item.id})"><i class="fas fa-edit"></i></button>
+                        <button class="btn-delete" onclick="eliminarInventario(${item.id})"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
             `).join('');
         } catch (err) {
-            console.error('Error cargando inventario:', err);
             grid.innerHTML = '<p class="no-data">Error conectando con el servidor</p>';
         }
     }
 
-    // Tabs de categoría en inventario
     document.querySelectorAll('[data-categoria]').forEach(btn => {
         btn.addEventListener('click', function () {
             document.querySelectorAll('[data-categoria]').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
-            const cat = this.getAttribute('data-categoria');
-            cargarInventarioPorTab(cat);
+            cargarInventarioPorTab(this.getAttribute('data-categoria'));
         });
     });
 
-    // Abrir modal agregar — FIX #5: pre-selecciona categoría del tab activo
     document.getElementById('btnAddInventario').addEventListener('click', () => {
         inventarioEditandoId = null;
         document.getElementById('modalTitle').textContent = 'Agregar Elemento';
         document.getElementById('formInventario').reset();
-
-        // Pre-seleccionar categoría activa y bloquear el select
         const selectCat = document.getElementById('invCategoria');
         selectCat.value    = categoriaTabActiva;
-        selectCat.disabled = true; // no puede cambiarla
-
+        selectCat.disabled = true;
         document.getElementById('modalInventario').classList.add('active');
     });
 
-    // Cancelar modal inventario
     document.getElementById('btnCancelModal').addEventListener('click', () => {
         document.getElementById('modalInventario').classList.remove('active');
         document.getElementById('invCategoria').disabled = false;
         inventarioEditandoId = null;
     });
 
-    // Guardar inventario (crear o editar)
     document.getElementById('formInventario').addEventListener('submit', async function (e) {
         e.preventDefault();
         const selectCat = document.getElementById('invCategoria');
@@ -605,61 +634,41 @@ document.addEventListener('DOMContentLoaded', function () {
             cantidad:  parseInt(document.getElementById('invCantidad').value),
             estado:    document.getElementById('invEstado').value
         };
-
-        // Re-habilitar antes de leer (disabled no se envía en formularios)
         selectCat.disabled = false;
-
         try {
-            let res;
             const esEdicion = inventarioEditandoId !== null;
-            if (esEdicion) {
-                res = await fetchAdmin(`${API}/inventario/${inventarioEditandoId}`, {
-                    method: 'PUT',
-                    body: JSON.stringify(payload)
-                });
-            } else {
-                res = await fetchAdmin(`${API}/inventario`, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-            }
+            const res = esEdicion
+                ? await fetchAdmin(`${API}/inventario/${inventarioEditandoId}`, { method: 'PUT', body: JSON.stringify(payload) })
+                : await fetchAdmin(`${API}/inventario`, { method: 'POST', body: JSON.stringify(payload) });
             const data = await res.json();
             if (res.ok) {
                 document.getElementById('modalInventario').classList.remove('active');
                 inventarioEditandoId = null;
                 mostrarToast(esEdicion ? 'Elemento actualizado' : 'Elemento agregado', 'success');
-                cargarInventarioPorTab(); // recargar tab actual
+                cargarInventarioPorTab();
             } else {
                 mostrarToast(data.mensaje || 'Error al guardar', 'error');
             }
-        } catch (err) {
-            mostrarToast('Error de conexión', 'error');
-        }
+        } catch (err) { mostrarToast('Error de conexión', 'error'); }
     });
 
-    // Editar inventario — no bloquea categoría al editar
     window.editarInventario = async function (id) {
         try {
             const res  = await fetchAdmin(`${API}/inventario`);
             const data = await res.json();
-            const items = data.inventario || data || [];
-            const item  = items.find(i => i.id === id);
+            const item  = (data.inventario || data || []).find(i => i.id === id);
             if (!item) return;
-
             inventarioEditandoId = id;
             document.getElementById('modalTitle').textContent   = 'Editar Elemento';
             document.getElementById('invNombre').value          = item.nombre;
             document.getElementById('invCategoria').value       = item.categoria;
-            document.getElementById('invCategoria').disabled    = false; // libre al editar
+            document.getElementById('invCategoria').disabled    = false;
             document.getElementById('invCantidad').value        = item.cantidad;
             document.getElementById('invEstado').value          = item.estado;
             document.getElementById('modalInventario').classList.add('active');
-        } catch (err) {
-            mostrarToast('Error cargando el elemento', 'error');
-        }
+        } catch (err) { mostrarToast('Error cargando el elemento', 'error'); }
     };
 
-    // Eliminar inventario
     window.eliminarInventario = async function (id) {
         if (!confirm('¿Eliminar este elemento del inventario?')) return;
         try {
@@ -671,10 +680,109 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 mostrarToast(data.mensaje || 'Error al eliminar', 'error');
             }
-        } catch (err) {
-            mostrarToast('Error de conexión', 'error');
-        }
+        } catch (err) { mostrarToast('Error de conexión', 'error'); }
     };
+
+    // ══════════════════════════════════════════════════════
+    //  REPORTES
+    // ══════════════════════════════════════════════════════
+    async function cargarReportes() {
+        await Promise.all([
+            cargarReporteUsuariosTipo(),
+            cargarReporteDeportes(),
+            cargarReporteMensual()
+        ]);
+    }
+
+    async function cargarReporteUsuariosTipo() {
+        try {
+            const res  = await fetchAdmin(`${API}/reportes/usuarios-por-tipo`);
+            const data = await res.json();
+            if (!data.ok) return;
+            const d = data.data;
+            const total = (d.Estudiante || 0) + (d.Docente || 0) + (d.Visitante || 0) || 1;
+            const barE = document.getElementById('barEstudiante');
+            const barD = document.getElementById('barDocente');
+            const barV = document.getElementById('barVisitante');
+            if (barE) {
+                barE.querySelector('.bar-value').textContent = d.Estudiante || 0;
+                barE.style.width = Math.round((d.Estudiante / total) * 100) + '%';
+            }
+            if (barD) {
+                barD.querySelector('.bar-value').textContent = d.Docente || 0;
+                barD.style.width = Math.round((d.Docente / total) * 100) + '%';
+            }
+            if (barV) {
+                barV.querySelector('.bar-value').textContent = d.Visitante || 0;
+                barV.style.width = Math.round((d.Visitante / total) * 100) + '%';
+            }
+        } catch (err) { console.error('Error reportes tipo usuario:', err); }
+    }
+
+    async function cargarReporteDeportes() {
+        try {
+            const res  = await fetchAdmin(`${API}/reportes/solicitudes-por-categoria`);
+            const data = await res.json();
+            if (!data.ok) return;
+            const d = data.data;
+            const container = document.getElementById('chartDeportes');
+            if (!container) return;
+            const categorias = [
+                { nombre: 'Fútbol',        valor: d['Fútbol']        || 0, color: '#228b22' },
+                { nombre: 'Baloncesto',    valor: d['Baloncesto']    || 0, color: '#1976d2' },
+                { nombre: 'Tenis de Mesa', valor: d['Tenis de Mesa'] || 0, color: '#f57c00' },
+                { nombre: 'Voleibol',      valor: d['Voleibol']      || 0, color: '#7b1fa2' },
+                { nombre: 'General',       valor: d['General']       || 0, color: '#455a64' }
+            ];
+            const maxVal = Math.max(...categorias.map(c => c.valor)) || 1;
+            container.innerHTML = `
+                <div style="display:flex;flex-direction:column;gap:12px;width:100%">
+                    ${categorias.map(c => `
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <span style="width:110px;font-size:0.85em;color:#555">${c.nombre}</span>
+                            <div style="flex:1;background:#f0f0f0;border-radius:6px;height:24px;overflow:hidden">
+                                <div style="height:100%;width:${Math.round((c.valor/maxVal)*100)}%;
+                                    background:${c.color};border-radius:6px;
+                                    transition:width 0.6s ease;
+                                    display:flex;align-items:center;justify-content:flex-end;padding-right:6px">
+                                    ${c.valor > 0 ? `<span style="color:#fff;font-size:0.75em;font-weight:700">${c.valor}</span>` : ''}
+                                </div>
+                            </div>
+                            <span style="width:28px;text-align:right;font-weight:700;font-size:0.9em;color:#333">${c.valor}</span>
+                        </div>
+                    `).join('')}
+                </div>`;
+        } catch (err) { console.error('Error reportes deportes:', err); }
+    }
+
+    async function cargarReporteMensual() {
+        try {
+            const res  = await fetchAdmin(`${API}/reportes/solicitudes-por-mes`);
+            const data = await res.json();
+            if (!data.ok) return;
+            const meses   = data.data;
+            const nombres = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+            const maxVal  = Math.max(...meses) || 1;
+            const container = document.getElementById('chartMensual');
+            if (!container) return;
+            container.innerHTML = `
+                <div style="display:flex;align-items:flex-end;height:200px;gap:6px;justify-content:space-around">
+                    ${meses.map((val, i) => `
+                        <div style="display:flex;flex-direction:column;align-items:center;flex:1;gap:4px">
+                            <span style="font-size:0.72em;font-weight:700;color:#228b22">${val > 0 ? val : ''}</span>
+                            <div style="
+                                width:100%;
+                                height:${Math.max(Math.round((val/maxVal)*160), val > 0 ? 8 : 2)}px;
+                                background:${val > 0 ? 'linear-gradient(to top,#228b22,#e8f5e9)' : '#eee'};
+                                border-radius:6px 6px 0 0;
+                                transition:height 0.5s ease;
+                            "></div>
+                            <span style="font-size:0.72em;color:#999">${nombres[i]}</span>
+                        </div>
+                    `).join('')}
+                </div>`;
+        } catch (err) { console.error('Error reportes mensual:', err); }
+    }
 
     // ── Utilidades ─────────────────────────────────────────
     function cerrarSidebar() {
@@ -682,182 +790,71 @@ document.addEventListener('DOMContentLoaded', function () {
         overlay.classList.remove('active');
     }
 
-    // Toast de notificación
     function mostrarToast(mensaje, tipo = 'success') {
         const colores = { success: '#228b22', error: '#d32f2f', info: '#1976d2' };
         const toast   = document.createElement('div');
         toast.style.cssText = `
-            position:fixed; bottom:30px; right:30px; z-index:9999;
-            background:${colores[tipo] || colores.success}; color:#fff;
-            padding:14px 22px; border-radius:10px;
-            font-size:0.95em; font-weight:500;
-            box-shadow:0 4px 20px rgba(0,0,0,0.2);
-            animation: slideInToast 0.3s ease;
+            position:fixed;bottom:30px;right:30px;z-index:9999;
+            background:${colores[tipo]||colores.success};color:#fff;
+            padding:14px 22px;border-radius:10px;font-size:0.95em;font-weight:500;
+            box-shadow:0 4px 20px rgba(0,0,0,0.2);animation:slideInToast 0.3s ease;
         `;
         toast.textContent = mensaje;
         document.body.appendChild(toast);
-        setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.4s'; }, 2500);
+        setTimeout(() => { toast.style.opacity='0'; toast.style.transition='opacity 0.4s'; }, 2500);
         setTimeout(() => toast.remove(), 3000);
     }
 
-    // Estilos inyectados
     const style = document.createElement('style');
     style.textContent = `
         @keyframes slideInToast {
-            from { transform: translateX(100px); opacity: 0; }
-            to   { transform: translateX(0);     opacity: 1; }
+            from { transform:translateX(100px); opacity:0; }
+            to   { transform:translateX(0);     opacity:1; }
         }
         .activity-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            border-bottom: 1px solid #f0f0f0;
-            transition: background 0.3s;
+            display:flex;align-items:center;gap:15px;
+            padding:15px;border-bottom:1px solid #f0f0f0;transition:background 0.3s;
         }
-        .activity-item:hover { background: var(--verde-claro); }
-        .activity-item i { font-size: 1.5em; color: var(--verde-principal); }
-        .badge {
-            background: var(--verde-claro);
-            color: var(--verde-principal);
-            padding: 3px 10px;
-            border-radius: 15px;
-            font-size: 0.85em;
-        }
-        /* Badge en sidebar */
+        .activity-item:hover { background:var(--verde-claro); }
+        .activity-item i { font-size:1.5em;color:var(--verde-principal); }
+        .badge { background:var(--verde-claro);color:var(--verde-principal);padding:3px 10px;border-radius:15px;font-size:0.85em; }
         .badge-nav {
-            background: #d32f2f;
-            color: #fff;
-            border-radius: 50%;
-            font-size: 0.72em;
-            font-weight: 700;
-            min-width: 20px;
-            height: 20px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-left: auto;
-            padding: 0 5px;
+            background:#d32f2f;color:#fff;border-radius:50%;font-size:0.72em;font-weight:700;
+            min-width:20px;height:20px;display:inline-flex;align-items:center;
+            justify-content:center;margin-left:auto;padding:0 5px;
         }
-        /* Badge en tab */
-        .badge-tab {
-            background: #d32f2f;
-            color: #fff;
-            border-radius: 12px;
-            font-size: 0.75em;
-            font-weight: 700;
-            padding: 2px 7px;
-            margin-left: 6px;
-        }
-        /* Botones solicitudes */
+        .badge-tab { background:#d32f2f;color:#fff;border-radius:12px;font-size:0.75em;font-weight:700;padding:2px 7px;margin-left:6px; }
         .btn-aprobar {
-            background: var(--verde-principal);
-            color: #fff;
-            border: none;
-            padding: 7px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.85em;
-            transition: background 0.2s;
-            display:flex; align-items:center; gap:5px;
+            background:var(--verde-principal);color:#fff;border:none;padding:7px 14px;
+            border-radius:8px;cursor:pointer;font-size:0.85em;transition:background 0.2s;
+            display:flex;align-items:center;gap:5px;
         }
-        .btn-aprobar:hover { background: var(--verde-oscuro); }
+        .btn-aprobar:hover { background:var(--verde-oscuro); }
         .btn-rechazar {
-            background: var(--rojo-error);
-            color: #fff;
-            border: none;
-            padding: 7px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.85em;
-            transition: background 0.2s;
-            display:flex; align-items:center; gap:5px;
+            background:var(--rojo-error);color:#fff;border:none;padding:7px 14px;
+            border-radius:8px;cursor:pointer;font-size:0.85em;transition:background 0.2s;
+            display:flex;align-items:center;gap:5px;
         }
-        .btn-rechazar:hover { background: #b71c1c; }
+        .btn-rechazar:hover { background:#b71c1c; }
         .btn-devuelto {
-            background: var(--azul);
-            color: #fff;
-            border: none;
-            padding: 7px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.85em;
-            transition: background 0.2s;
-            display:flex; align-items:center; gap:5px;
+            background:var(--azul);color:#fff;border:none;padding:7px 14px;
+            border-radius:8px;cursor:pointer;font-size:0.85em;transition:background 0.2s;
+            display:flex;align-items:center;gap:5px;
         }
-        .btn-devuelto:hover { background: #1565c0; }
-        /* Estados */
-        .estado-badge {
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 0.82em;
-            font-weight: 600;
-        }
-        .estado-pendiente    { background: #fff3e0; color: #f57c00; }
-        .estado-aprobado     { background: #e8f5e9; color: #228b22; }
-        .estado-rechazado    { background: #fce4ec; color: #d32f2f; }
-        .estado-devuelto     { background: #e3f2fd; color: #1976d2; }
-        .estado-disponible   { background: #e8f5e9; color: #228b22; }
-        .estado-agotado      { background: #fff3e0; color: #f57c00; }
-        .estado-mantenimiento{ background: #fce4ec; color: #d32f2f; }
-        /* Tabs solicitudes y deportes */
-        .tab-sol-content { display: none; }
-        .tab-sol-content.active { display: block; }
-        .tab-dep-content { display: none; }
-        .tab-dep-content.active { display: block; }
-        /* Tabs inventario por categoría */
-        .tabs-categoria {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-        .tab-cat-btn {
-            padding: 8px 18px;
-            border: 2px solid var(--verde-principal);
-            background: #fff;
-            color: var(--verde-principal);
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 0.88em;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-        .tab-cat-btn:hover,
-        .tab-cat-btn.active {
-            background: var(--verde-principal);
-            color: #fff;
-        }
-        /* Columna motivo de rechazo */
-        .motivo-rechazo {
-            font-size: 0.85em;
-            color: #555;
-            max-width: 220px;
-            white-space: pre-line;
-        }
-        /* Tabs deportes */
-        .tabs-deportes {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-        .tab-dep-btn {
-            padding: 8px 18px;
-            border: 2px solid var(--verde-principal);
-            background: #fff;
-            color: var(--verde-principal);
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 0.88em;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-        .tab-dep-btn:hover,
-        .tab-dep-btn.active {
-            background: var(--verde-principal);
-            color: #fff;
-        }
+        .btn-devuelto:hover { background:#1565c0; }
+        .estado-badge { padding:3px 10px;border-radius:12px;font-size:0.82em;font-weight:600; }
+        .estado-pendiente    { background:#fff3e0;color:#f57c00; }
+        .estado-aprobado     { background:#e8f5e9;color:#228b22; }
+        .estado-rechazado    { background:#fce4ec;color:#d32f2f; }
+        .estado-devuelto     { background:#e3f2fd;color:#1976d2; }
+        .estado-disponible   { background:#e8f5e9;color:#228b22; }
+        .estado-agotado      { background:#fff3e0;color:#f57c00; }
+        .estado-mantenimiento{ background:#fce4ec;color:#d32f2f; }
+        .tab-sol-content        { display:none; }
+        .tab-sol-content.active { display:block; }
+        .tab-dep-content        { display:none; }
+        .tab-dep-content.active { display:block; }
+        .motivo-rechazo { font-size:0.85em;color:#555;max-width:220px;white-space:pre-line; }
     `;
     document.head.appendChild(style);
 });

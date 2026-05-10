@@ -80,7 +80,7 @@ def registrar_usuario():
     if errores:
         return jsonify({'ok': False, 'errores': errores}), 400
 
-    # Bloquear registro de Admin desde el formulario
+    # Bloquear registro de Admin desde el formulario público
     tipo_solicitado = data.get('tipo', 'Estudiante')
     if tipo_solicitado == 'Admin':
         return jsonify({'ok': False, 'mensaje': 'No permitido'}), 403
@@ -169,7 +169,6 @@ def listar_usuarios():
 @usuarios_bp.route('/usuarios/<int:uid>', methods=['DELETE'])
 @solo_admin
 def eliminar_usuario(uid):
-    # Evitar que el admin se elimine a sí mismo
     admin_id = request.headers.get('X-Admin-Id')
     if str(uid) == str(admin_id):
         return jsonify({'ok': False, 'mensaje': 'No puedes eliminarte a ti mismo'}), 400
@@ -181,6 +180,58 @@ def eliminar_usuario(uid):
         if cursor.rowcount == 0:
             return jsonify({'ok': False, 'mensaje': 'Usuario no encontrado'}), 404
         return jsonify({'ok': True, 'mensaje': 'Usuario eliminado'}), 200
+    finally:
+        cursor.close()
+        db.close()
+
+# ── POST /api/usuarios/crear  (solo admin) ───────────
+# A diferencia de /api/registro, esta ruta permite crear
+# cualquier tipo de usuario incluyendo Admin.
+@usuarios_bp.route('/usuarios/crear', methods=['POST'])
+@solo_admin
+def crear_usuario_admin():
+    data = request.get_json()
+    nombre     = data.get('nombre', '').strip()
+    programa   = data.get('programa', '').strip()
+    codigo     = data.get('codigo', '').strip()
+    correo     = data.get('correo', '').strip()
+    contrasena = data.get('contrasena', '')
+    tipo       = data.get('tipo', 'Estudiante').strip()
+
+    errores = {}
+    if not validar_nombre(nombre):
+        errores['nombre'] = 'Solo letras y espacios, mínimo 3 caracteres'
+    if not validar_programa(programa):
+        errores['programa'] = 'Solo letras y espacios, mínimo 3 caracteres'
+    if not validar_codigo(codigo):
+        errores['codigo'] = 'Solo letras y números, entre 4 y 20 caracteres'
+    if not validar_correo(correo):
+        errores['correo'] = 'Debe ser un correo válido'
+    if not validar_contrasena(contrasena):
+        errores['contrasena'] = 'Mínimo 8 caracteres, 1 número y 1 carácter especial'
+
+    tipos_validos = ['Estudiante', 'Docente', 'Visitante', 'Admin']
+    if tipo not in tipos_validos:
+        errores['tipo'] = 'Tipo de usuario inválido'
+
+    if errores:
+        return jsonify({'ok': False, 'errores': errores}), 400
+
+    hash_pw = bcrypt.hashpw(contrasena.encode('utf-8'), bcrypt.gensalt())
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute(
+            """INSERT INTO usuarios (nombre, programa, codigo, correo, contrasena, tipo)
+               VALUES (%s, %s, %s, %s, %s, %s)""",
+            (nombre, programa, codigo, correo, hash_pw.decode('utf-8'), tipo)
+        )
+        db.commit()
+        return jsonify({'ok': True, 'mensaje': f'Usuario {tipo} creado exitosamente'}), 201
+    except mysql.connector.errors.IntegrityError:
+        return jsonify({'ok': False, 'errores': {
+            'general': 'El código o correo ya está registrado'
+        }}), 409
     finally:
         cursor.close()
         db.close()

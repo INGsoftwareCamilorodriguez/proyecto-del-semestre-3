@@ -4,6 +4,7 @@ from routes.usuarios    import usuarios_bp
 from routes.inventario  import inventario_bp
 from routes.solicitudes import solicitudes_bp
 from routes.mensajes    import mensajes_bp
+from routes.reportes    import reportes_bp
 
 app = Flask(__name__)
 CORS(app)  # Permite que el frontend HTML se conecte al backend
@@ -13,6 +14,7 @@ app.register_blueprint(usuarios_bp,    url_prefix='/api')
 app.register_blueprint(inventario_bp,  url_prefix='/api')
 app.register_blueprint(solicitudes_bp, url_prefix='/api')
 app.register_blueprint(mensajes_bp,    url_prefix='/api')
+app.register_blueprint(reportes_bp,    url_prefix='/api')
 
 if __name__ == '__main__':
     print("Servidor Bodega FET corriendo en http://localhost:5000")
@@ -22,6 +24,7 @@ if __name__ == '__main__':
     print("  POST   /api/login")
     print("  GET    /api/usuarios              (admin)")
     print("  DELETE /api/usuarios/<id>         (admin)")
+    print("  POST   /api/usuarios/crear        (admin)")
     print("  ---")
     print("  GET    /api/inventario            (público)")
     print("  POST   /api/inventario            (admin)")
@@ -40,4 +43,8 @@ if __name__ == '__main__':
     print("  PUT    /api/mensajes/<id>/leer    (usuario)")
     print("  PUT    /api/mensajes/leer-todos   (usuario)")
     print("  DELETE /api/mensajes/<id>         (usuario)")
+    print("  ---")
+    print("  GET    /api/reportes/usuarios-por-tipo        (admin)")
+    print("  GET    /api/reportes/solicitudes-por-categoria (admin)")
+    print("  GET    /api/reportes/solicitudes-por-mes      (admin)")
     app.run(debug=True, port=5000)
