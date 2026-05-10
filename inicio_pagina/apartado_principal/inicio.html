@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bodega deportes Fet</title>
   <link rel="stylesheet" href="/inicio_pagina/apartado_principal/diseño_inicio.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
 <header>
   <div class="container">
     <div class="header-content">
@@ -20,7 +24,31 @@
           <li><a href="#">Inicio</a></li>
           <li><a href="#tipos">elementos deportivos</a></li>
           <li><a href="/inicio_pagina/apartado_contactos/contacto/contactos.html">Atención al cliente</a></li>
-          <li><a href="/inicio_de_usuario_y_registro/index.html">Cerrar sesion</a></li>
+
+          <!-- ÍCONO MENSAJES CON DROPDOWN -->
+          <li class="nav-item-mensajes">
+            <button id="btn-mensajes" class="btn-mensajes-nav" title="Mensajes">
+              <i class="fas fa-envelope"></i>
+              <span id="badge-mensajes" class="badge-mensajes">0</span>
+            </button>
+
+            <!-- PANEL DROPDOWN -->
+            <div id="panel-mensajes" class="panel-mensajes" style="display:none;">
+              <div class="panel-header">
+                <span class="panel-titulo"><i class="fas fa-envelope"></i> Mensajes</span>
+                <button id="btn-leer-todos" class="btn-leer-todos" title="Marcar todos como leídos">
+                  <i class="fas fa-check-double"></i> Leer todos
+                </button>
+              </div>
+              <div id="panel-cuerpo" class="panel-cuerpo">
+                <div class="panel-cargando">
+                  <i class="fas fa-spinner fa-spin"></i> Cargando...
+                </div>
+              </div>
+            </div>
+          </li>
+
+          <li><a href="/inicio_de_usuario_y_registro/index.html" id="btn-cerrar-sesion">Cerrar sesión</a></li>
         </ul>
       </nav>
     </div>
@@ -45,63 +73,64 @@
     <div class="sports-grid">
 
       <div class="sport-card">
-        <a href="/formulario_producto/fomulario_futubol/formularios_futbol.html"><img src="/inicio_pagina/imagenes/balon de futboll.jpg" alt="Balones de fútbol">
-          <div class="sport-overlay">
-            <h3>Balones de fútbol</h3>
-          </div>
+        <a href="/formulario_producto/fomulario_futubol/formularios_futbol.html">
+          <img src="/inicio_pagina/imagenes/balon de futboll.jpg" alt="Balones de fútbol">
+          <div class="sport-overlay"><h3>Balones de fútbol</h3></div>
         </a>
       </div>
 
       <div class="sport-card">
-        <a href="/formulario_producto/fomulario_baloncesto/formularios_voleivol.html"><img src="/inicio_pagina/imagenes/balon baloncesto.jpg" alt="Balones de baloncesto" >
-          <div class="sport-overlay">
-            <h3>Balones de baloncesto</h3>
-          </div>
+        <a href="/formulario_producto/fomulario_baloncesto/formularios_voleivol.html">
+          <img src="/inicio_pagina/imagenes/balon baloncesto.jpg" alt="Balones de baloncesto">
+          <div class="sport-overlay"><h3>Balones de baloncesto</h3></div>
         </a>
       </div>
 
       <div class="sport-card">
-        <a href="/formulario_producto/fomulario_tenis_mesa/formularios_tenis_mesa.html"> <img src="/inicio_pagina/imagenes/tenis de mesa.jpg" alt="Tenis de Mesa">
-          <div class="sport-overlay">
-            <h3>Tenis de Mesa</h3>
-          </div>
+        <a href="/formulario_producto/fomulario_tenis_mesa/formularios_tenis_mesa.html">
+          <img src="/inicio_pagina/imagenes/tenis de mesa.jpg" alt="Tenis de Mesa">
+          <div class="sport-overlay"><h3>Tenis de Mesa</h3></div>
         </a>
       </div>
 
       <div class="sport-card">
-        <a href="/formulario_producto/fomulario_voleivol/formularios_voleivol.html"><img src="/inicio_pagina/imagenes/voleivol.jpg" alt="Voleibol">
-          <div class="sport-overlay">
-            <h3>Voleibol</h3>
-          </div>
+        <a href="/formulario_producto/fomulario_voleivol/formularios_voleivol.html">
+          <img src="/inicio_pagina/imagenes/voleivol.jpg" alt="Voleibol">
+          <div class="sport-overlay"><h3>Voleibol</h3></div>
         </a>
       </div>
+
     </div>
   </div>
 </section>
 
 <section class="applications" id="aplicaciones">
   <div class="container">
-    <h2 class="section-title">Qué deportes disfrutas practicar?</h2>
+    <h2 class="section-title">¿Qué deportes disfrutas practicar?</h2>
     <div class="applications-grid">
       <div class="app-card">
-        <div class="app-icon"></div>
+        <div class="app-icon"><i class="fas fa-futbol"></i></div>
         <h3>¿Practicas fútbol?</h3>
-        <p>En este apartado encontrarás todos los implementos que necesitas para jugar, entrenar y dar lo mejor en la cancha. <br> <a href="/formulario_producto/fomulario_futubol/formularios_futbol.html" style="color: red;">Haz clic aquí</a></p>
+        <p>En este apartado encontrarás todos los implementos que necesitas para jugar, entrenar y dar lo mejor en la cancha.<br>
+          <a href="/formulario_producto/fomulario_futubol/formularios_futbol.html" style="color:red;">Haz clic aquí</a></p>
       </div>
       <div class="app-card">
-        <div class="app-icon"></div>
+        <div class="app-icon"><i class="fas fa-basketball-ball"></i></div>
         <h3>¿Te apasiona el baloncesto?</h3>
-        <p>Aquí tenemos balones y accesorios ideales para mejorar tu rendimiento en cada partido. <a href="/formulario_producto/fomulario_baloncesto/formularios_voleivol.html" style="color: red;">Haz clic aquí</a></p>
+        <p>Aquí tenemos balones y accesorios ideales para mejorar tu rendimiento en cada partido.
+          <a href="/formulario_producto/fomulario_baloncesto/formularios_voleivol.html" style="color:red;">Haz clic aquí</a></p>
       </div>
       <div class="app-card">
-        <div class="app-icon"></div>
+        <div class="app-icon"><i class="fas fa-table-tennis"></i></div>
         <h3>¿Juegas tenis de mesa?</h3>
-        <p>Encuentra raquetas, pelotas y todo lo necesario para disfrutar cada encuentro.<br> <a href="/formulario_producto/fomulario_tenis_mesa/formularios_tenis_mesa.html" style="color: red;">Haz clic aquí</a></p>
+        <p>Encuentra raquetas, pelotas y todo lo necesario para disfrutar cada encuentro.<br>
+          <a href="/formulario_producto/fomulario_tenis_mesa/formularios_tenis_mesa.html" style="color:red;">Haz clic aquí</a></p>
       </div>
       <div class="app-card">
-        <div class="app-icon"></div>
+        <div class="app-icon"><i class="fas fa-volleyball-ball"></i></div>
         <h3>¿Te gusta el voleibol?</h3>
-        <p>Consigue los implementos perfectos para cada saque, bloqueo y remate. <br> <a href="/formulario_producto/fomulario_voleivol/formularios_voleivol.html" style="color: red;">Haz clic aquí</a></p>
+        <p>Consigue los implementos perfectos para cada saque, bloqueo y remate.<br>
+          <a href="/formulario_producto/fomulario_voleivol/formularios_voleivol.html" style="color:red;">Haz clic aquí</a></p>
       </div>
     </div>
   </div>
@@ -132,21 +161,20 @@
       </div>
       <div class="footer-section">
         <h3>Síguenos</h3>
-        <div>
-          <a href="#"><i></i></a>
-          <a href="#"><i></i></a>
-          <a href="#"><i></i></a>
-          <a href="#"><i ></i></a>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-youtube"></i></a>
         </div>
       </div>
     </div>
     <div class="copyright">
-      <p>@ 2026 Bodega Fet. Todos los derechos reservados.</p>
+      <p>© 2026 Bodega Fet. Todos los derechos reservados.</p>
     </div>
   </div>
 </footer>
 
 <script src="/inicio_pagina/apartado_principal/interacion_inicio.js"></script>
-
 </body>
 </html>
