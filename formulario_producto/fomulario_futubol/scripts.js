@@ -2,26 +2,20 @@ const API = 'http://localhost:5000/api';
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    // ── Verificar sesión ──────────────────────────────────
     const sesionStr = sessionStorage.getItem('usuarioFET');
-    if (!sesionStr) {
-        window.location.href = '/inicio_de_usuario_y_registro/index.html';
-        return;
-    }
+    if (!sesionStr) { window.location.href = '/inicio_de_usuario_y_registro/index.html'; return; }
     const usuario = JSON.parse(sesionStr);
 
-    // ── Elementos del formulario ──────────────────────────
-    const formulario              = document.getElementById('formularioFutbol');
-    const mensajeExito            = document.getElementById('mensajeExito');
-    const nombre                  = document.getElementById('nombre');
-    const programa                = document.getElementById('programa');
-    const tipoUsuario             = document.getElementById('tipoUsuario');
-    const codigoEstudiante        = document.getElementById('codigoEstudiante');
-    const correoInstitucional     = document.getElementById('correoInstitucional');
-    const implementosDisponibles  = document.getElementById('implementosDisponibles');
-    const cantidad                = document.getElementById('cantidad');
+    const formulario             = document.getElementById('formularioFutbol');
+    const mensajeExito           = document.getElementById('mensajeExito');
+    const nombre                 = document.getElementById('nombre');
+    const programa               = document.getElementById('programa');
+    const tipoUsuario            = document.getElementById('tipoUsuario');
+    const codigoEstudiante       = document.getElementById('codigoEstudiante');
+    const correoInstitucional    = document.getElementById('correoInstitucional');
+    const implementosDisponibles = document.getElementById('implementosDisponibles');
+    const cantidad               = document.getElementById('cantidad');
 
-    // ── Elementos de error ────────────────────────────────
     const errorNombre                 = document.getElementById('errorNombre');
     const errorPrograma               = document.getElementById('errorPrograma');
     const errorTipoUsuario            = document.getElementById('errorTipoUsuario');
@@ -30,76 +24,60 @@ document.addEventListener('DOMContentLoaded', function () {
     const errorImplementosDisponibles = document.getElementById('errorImplementosDisponibles');
     const errorCantidad               = document.getElementById('errorCantidad');
 
-    // ── Prellenar datos del usuario logueado ─────────────
-    if (nombre)              nombre.value          = usuario.nombre  || '';
-    if (programa)            programa.value        = usuario.programa || '';
-    if (codigoEstudiante)    codigoEstudiante.value = usuario.codigo  || '';
-    if (correoInstitucional) correoInstitucional.value = usuario.correo || '';
-    if (tipoUsuario)         tipoUsuario.value     = usuario.tipo    || 'Estudiante';
+    // Prellenar datos del usuario logueado
+    if (nombre)              nombre.value              = usuario.nombre   || '';
+    if (programa)            programa.value            = usuario.programa || '';
+    if (codigoEstudiante)    codigoEstudiante.value    = usuario.codigo   || '';
+    if (correoInstitucional) correoInstitucional.value = usuario.correo   || '';
 
-    // ── Cargar productos de Fútbol desde la BD ────────────
+    // FIX: nunca enviar 'Admin' al backend
+    const tiposValidos = ['Estudiante', 'Docente', 'Visitante'];
+    if (tipoUsuario) tipoUsuario.value = tiposValidos.includes(usuario.tipo) ? usuario.tipo : 'Estudiante';
+
+    // Cargar productos de FÚTBOL desde la BD
     async function cargarProductos() {
         try {
-            const res  = await fetch(`${API}/inventario?categoria=Fútbol`);
+            const res  = await fetch(`${API}/inventario?categoria=F%C3%BAtbol`);
             const data = await res.json();
-
             implementosDisponibles.innerHTML = '<option value="">Seleccione una opción</option>';
-
-            if (!data.ok || data.inventario.length === 0) {
+            if (!data.ok || !data.inventario || data.inventario.length === 0) {
                 implementosDisponibles.innerHTML += '<option disabled>No hay productos disponibles</option>';
                 return;
             }
-
-            data.inventario.forEach(producto => {
-                if (producto.estado === 'Disponible' && producto.cantidad > 0) {
+            data.inventario.forEach(p => {
+                if (p.estado === 'Disponible' && p.cantidad > 0) {
                     const opt = document.createElement('option');
-                    opt.value       = producto.id;
-                    opt.textContent = `${producto.nombre} (${producto.cantidad} disponibles)`;
+                    opt.value       = p.id;
+                    opt.textContent = `${p.nombre} (${p.cantidad} disponibles)`;
                     implementosDisponibles.appendChild(opt);
                 }
             });
-
         } catch (err) {
-            console.error('Error cargando productos:', err);
             implementosDisponibles.innerHTML = '<option disabled>Error cargando productos</option>';
         }
     }
-
     cargarProductos();
 
-    // ── Validaciones en tiempo real ───────────────────────
+    // Validaciones en tiempo real
     nombre.addEventListener('input', function () {
         if (nombre.value.trim().length > 0 && nombre.value.trim().length < 5) {
             mostrarError(errorNombre, 'El nombre debe tener al menos 5 caracteres');
             nombre.classList.add('error');
-        } else {
-            limpiarError(errorNombre);
-            nombre.classList.remove('error');
-        }
+        } else { limpiarError(errorNombre); nombre.classList.remove('error'); }
     });
-
     codigoEstudiante.addEventListener('input', function () {
         if (codigoEstudiante.value.trim() && codigoEstudiante.value.trim().length < 4) {
             mostrarError(errorCodigoEstudiante, 'El código debe tener al menos 4 caracteres');
             codigoEstudiante.classList.add('error');
-        } else {
-            limpiarError(errorCodigoEstudiante);
-            codigoEstudiante.classList.remove('error');
-        }
+        } else { limpiarError(errorCodigoEstudiante); codigoEstudiante.classList.remove('error'); }
     });
-
     correoInstitucional.addEventListener('input', function () {
-        const valor        = correoInstitucional.value.trim();
-        const esValido     = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor);
-        if (valor && !esValido) {
+        const v = correoInstitucional.value.trim();
+        if (v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
             mostrarError(errorCorreoInstitucional, 'Ingrese un correo válido');
             correoInstitucional.classList.add('error');
-        } else {
-            limpiarError(errorCorreoInstitucional);
-            correoInstitucional.classList.remove('error');
-        }
+        } else { limpiarError(errorCorreoInstitucional); correoInstitucional.classList.remove('error'); }
     });
-
     [programa, tipoUsuario, implementosDisponibles, cantidad].forEach(el => {
         el.addEventListener('change', function () {
             const errEl = document.getElementById('error' + el.id.charAt(0).toUpperCase() + el.id.slice(1));
@@ -107,125 +85,99 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // ── Envío del formulario ──────────────────────────────
     formulario.addEventListener('submit', async function (e) {
         e.preventDefault();
         limpiarTodosErrores();
         mensajeExito.classList.remove('show');
-
         let esValido = true;
 
         if (!nombre.value.trim() || nombre.value.trim().length < 5) {
             mostrarError(errorNombre, 'El nombre debe tener al menos 5 caracteres');
-            nombre.classList.add('error');
-            esValido = false;
+            nombre.classList.add('error'); esValido = false;
         }
         if (!programa.value.trim()) {
             mostrarError(errorPrograma, 'El programa es obligatorio');
-            programa.classList.add('error');
+            programa.classList.add('error'); esValido = false;
+        }
+
+        // FIX: validar que tipoUsuario sea uno de los 3 válidos
+        const tipoActual = tipoUsuario ? tipoUsuario.value : '';
+        if (!tiposValidos.includes(tipoActual)) {
+            mostrarError(errorTipoUsuario, 'Seleccione un tipo de usuario válido');
+            if (tipoUsuario) tipoUsuario.classList.add('error');
             esValido = false;
         }
-        if (!tipoUsuario.value) {
-            mostrarError(errorTipoUsuario, 'Seleccione un tipo de usuario');
-            tipoUsuario.classList.add('error');
-            esValido = false;
-        }
+
         if (!codigoEstudiante.value.trim()) {
             mostrarError(errorCodigoEstudiante, 'El código es obligatorio');
-            codigoEstudiante.classList.add('error');
-            esValido = false;
+            codigoEstudiante.classList.add('error'); esValido = false;
         }
-        if (!correoInstitucional.value.trim() ||
-            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoInstitucional.value.trim())) {
+        if (!correoInstitucional.value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoInstitucional.value.trim())) {
             mostrarError(errorCorreoInstitucional, 'Ingrese un correo válido');
-            correoInstitucional.classList.add('error');
-            esValido = false;
+            correoInstitucional.classList.add('error'); esValido = false;
         }
         if (!implementosDisponibles.value) {
             mostrarError(errorImplementosDisponibles, 'Seleccione un implemento');
-            implementosDisponibles.classList.add('error');
-            esValido = false;
+            implementosDisponibles.classList.add('error'); esValido = false;
         }
-        if (!cantidad.value) {
-            mostrarError(errorCantidad, 'Seleccione una cantidad');
-            cantidad.classList.add('error');
-            esValido = false;
+        if (!cantidad.value || parseInt(cantidad.value) < 1) {
+            mostrarError(errorCantidad, 'Ingrese una cantidad válida');
+            cantidad.classList.add('error'); esValido = false;
         }
 
-        if (!esValido) {
-            document.querySelector('.error')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            return;
-        }
+        if (!esValido) { document.querySelector('.error')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
 
-        // ── Enviar solicitud al backend ───────────────────
         try {
             const btnSubmit = formulario.querySelector('.btn-submit');
-            btnSubmit.disabled    = true;
-            btnSubmit.textContent = 'Enviando...';
+            btnSubmit.disabled = true; btnSubmit.textContent = 'Enviando...';
 
-            const res  = await fetch(`${API}/solicitudes`, {
+            const res = await fetch(`${API}/solicitudes`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type':  'application/json',
-                    'X-Usuario-Id':  usuario.id
-                },
+                headers: { 'Content-Type': 'application/json', 'X-Usuario-Id': usuario.id },
                 body: JSON.stringify({
                     inventario_id:       parseInt(implementosDisponibles.value),
                     cantidad_solicitada: parseInt(cantidad.value),
-                    tipo_usuario:        tipoUsuario.value
+                    tipo_usuario:        tiposValidos.includes(tipoActual) ? tipoActual : 'Estudiante'
                 })
             });
-
             const data = await res.json();
 
             if (data.ok) {
-                // Éxito — mostrar mensaje y limpiar
                 mensajeExito.textContent = data.mensaje;
                 mensajeExito.classList.add('show');
                 formulario.reset();
+                // FIX: reprellenar después del reset
+                if (nombre)              nombre.value              = usuario.nombre   || '';
+                if (programa)            programa.value            = usuario.programa || '';
+                if (codigoEstudiante)    codigoEstudiante.value    = usuario.codigo   || '';
+                if (correoInstitucional) correoInstitucional.value = usuario.correo   || '';
+                if (tipoUsuario)         tipoUsuario.value         = tiposValidos.includes(usuario.tipo) ? usuario.tipo : 'Estudiante';
                 limpiarTodosErrores();
-                // Recargar productos por si cambió el stock
                 cargarProductos();
                 mensajeExito.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 setTimeout(() => mensajeExito.classList.remove('show'), 6000);
             } else {
-                // Error del servidor
                 mostrarError(errorImplementosDisponibles, data.mensaje || 'Error al enviar la solicitud');
             }
-
         } catch (err) {
-            console.error('Error enviando solicitud:', err);
             mostrarError(errorImplementosDisponibles, 'Error de conexión con el servidor');
         } finally {
             const btnSubmit = formulario.querySelector('.btn-submit');
-            btnSubmit.disabled    = false;
-            btnSubmit.textContent = 'Registrar Jugador';
+            btnSubmit.disabled = false; btnSubmit.textContent = 'Registrar Jugador';
         }
     });
 
-    // ── Funciones auxiliares ──────────────────────────────
     function mostrarError(el, msg) { if (el) el.textContent = msg; }
     function limpiarError(el)      { if (el) el.textContent = ''; }
     function limpiarTodosErrores() {
         [errorNombre, errorPrograma, errorTipoUsuario, errorCodigoEstudiante,
-         errorCorreoInstitucional, errorImplementosDisponibles, errorCantidad
-        ].forEach(limpiarError);
+         errorCorreoInstitucional, errorImplementosDisponibles, errorCantidad].forEach(limpiarError);
     }
 
-    // Hover en inputs
     document.querySelectorAll('input, select').forEach(input => {
-        input.addEventListener('mouseenter', function () {
-            if (!this.classList.contains('error')) this.style.transform = 'scale(1.02)';
-        });
-        input.addEventListener('mouseleave', function () {
-            this.style.transform = 'scale(1)';
-        });
+        input.addEventListener('mouseenter', function () { if (!this.classList.contains('error')) this.style.transform = 'scale(1.02)'; });
+        input.addEventListener('mouseleave', function () { this.style.transform = 'scale(1)'; });
     });
-
-    // Animación logo
     const logo = document.querySelector('.logo');
-    if (logo) {
-        logo.style.opacity = '0';
-        setTimeout(() => { logo.style.transition = 'opacity 0.8s ease'; logo.style.opacity = '1'; }, 300);
-    }
+    if (logo) { logo.style.opacity = '0'; setTimeout(() => { logo.style.transition = 'opacity 0.8s ease'; logo.style.opacity = '1'; }, 300); }
 });

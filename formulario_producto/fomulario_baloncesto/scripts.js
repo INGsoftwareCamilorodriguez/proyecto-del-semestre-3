@@ -29,7 +29,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (programa)            programa.value            = usuario.programa || '';
     if (codigoEstudiante)    codigoEstudiante.value    = usuario.codigo   || '';
     if (correoInstitucional) correoInstitucional.value = usuario.correo   || '';
-    if (tipoUsuario)         tipoUsuario.value         = usuario.tipo     || 'Estudiante';
+
+    // FIX: nunca enviar 'Admin' al backend
+    const tiposValidos = ['Estudiante', 'Docente', 'Visitante'];
+    if (tipoUsuario) tipoUsuario.value = tiposValidos.includes(usuario.tipo) ? usuario.tipo : 'Estudiante';
 
     // Cargar productos de BALONCESTO desde la BD
     async function cargarProductos() {
@@ -37,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const res  = await fetch(`${API}/inventario?categoria=Baloncesto`);
             const data = await res.json();
             implementosDisponibles.innerHTML = '<option value="">Seleccione una opción</option>';
-            if (!data.ok || data.inventario.length === 0) {
+            if (!data.ok || !data.inventario || data.inventario.length === 0) {
                 implementosDisponibles.innerHTML += '<option disabled>No hay productos disponibles</option>';
                 return;
             }
@@ -55,7 +58,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     cargarProductos();
 
-    // Validaciones en tiempo real
     nombre.addEventListener('input', function () {
         if (nombre.value.trim().length > 0 && nombre.value.trim().length < 5) {
             mostrarError(errorNombre, 'El nombre debe tener al menos 5 caracteres');
@@ -82,7 +84,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Envío del formulario
     formulario.addEventListener('submit', async function (e) {
         e.preventDefault();
         limpiarTodosErrores();
@@ -97,10 +98,14 @@ document.addEventListener('DOMContentLoaded', function () {
             mostrarError(errorPrograma, 'El programa es obligatorio');
             programa.classList.add('error'); esValido = false;
         }
-        if (!tipoUsuario.value) {
-            mostrarError(errorTipoUsuario, 'Seleccione un tipo de usuario');
-            tipoUsuario.classList.add('error'); esValido = false;
+
+        const tipoActual = tipoUsuario ? tipoUsuario.value : '';
+        if (!tiposValidos.includes(tipoActual)) {
+            mostrarError(errorTipoUsuario, 'Seleccione un tipo de usuario válido');
+            if (tipoUsuario) tipoUsuario.classList.add('error');
+            esValido = false;
         }
+
         if (!codigoEstudiante.value.trim()) {
             mostrarError(errorCodigoEstudiante, 'El código es obligatorio');
             codigoEstudiante.classList.add('error'); esValido = false;
@@ -113,8 +118,8 @@ document.addEventListener('DOMContentLoaded', function () {
             mostrarError(errorImplementosDisponibles, 'Seleccione un implemento');
             implementosDisponibles.classList.add('error'); esValido = false;
         }
-        if (!cantidad.value) {
-            mostrarError(errorCantidad, 'Seleccione una cantidad');
+        if (!cantidad.value || parseInt(cantidad.value) < 1) {
+            mostrarError(errorCantidad, 'Ingrese una cantidad válida');
             cantidad.classList.add('error'); esValido = false;
         }
 
@@ -124,13 +129,13 @@ document.addEventListener('DOMContentLoaded', function () {
             const btnSubmit = formulario.querySelector('.btn-submit');
             btnSubmit.disabled = true; btnSubmit.textContent = 'Enviando...';
 
-            const res  = await fetch(`${API}/solicitudes`, {
+            const res = await fetch(`${API}/solicitudes`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-Usuario-Id': usuario.id },
                 body: JSON.stringify({
                     inventario_id:       parseInt(implementosDisponibles.value),
                     cantidad_solicitada: parseInt(cantidad.value),
-                    tipo_usuario:        tipoUsuario.value
+                    tipo_usuario:        tiposValidos.includes(tipoActual) ? tipoActual : 'Estudiante'
                 })
             });
             const data = await res.json();
@@ -139,6 +144,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 mensajeExito.textContent = data.mensaje;
                 mensajeExito.classList.add('show');
                 formulario.reset();
+                if (nombre)              nombre.value              = usuario.nombre   || '';
+                if (programa)            programa.value            = usuario.programa || '';
+                if (codigoEstudiante)    codigoEstudiante.value    = usuario.codigo   || '';
+                if (correoInstitucional) correoInstitucional.value = usuario.correo   || '';
+                if (tipoUsuario)         tipoUsuario.value         = tiposValidos.includes(usuario.tipo) ? usuario.tipo : 'Estudiante';
                 limpiarTodosErrores();
                 cargarProductos();
                 mensajeExito.scrollIntoView({ behavior: 'smooth', block: 'center' });

@@ -29,7 +29,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (programa)            programa.value            = usuario.programa || '';
     if (codigoEstudiante)    codigoEstudiante.value    = usuario.codigo   || '';
     if (correoInstitucional) correoInstitucional.value = usuario.correo   || '';
-    if (tipoUsuario)         tipoUsuario.value         = usuario.tipo     || 'Estudiante';
+    const tiposValidos = ['Estudiante', 'Docente', 'Visitante'];
+    if (tipoUsuario) tipoUsuario.value = tiposValidos.includes(usuario.tipo) ? usuario.tipo : 'Estudiante';
 
     // Cargar productos de TENIS DE MESA desde la BD
     async function cargarProductos() {
