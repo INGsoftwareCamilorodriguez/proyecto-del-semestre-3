@@ -33,7 +33,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ── Variables de estado inventario ────────────────────
-    let inventarioEditandoId = null;
+    let inventarioEditandoId  = null;
+    let categoriaTabActiva    = 'Fútbol'; // FIX #5: tracking de tab activo en inventario
 
     // ── Variables de estado solicitudes ──────────────────
     let solicitudRechazandoId = null;
@@ -70,10 +71,11 @@ document.addEventListener('DOMContentLoaded', function () {
             if (window.innerWidth <= 968) cerrarSidebar();
 
             switch (target) {
-                case 'dashboard':   cargarDashboard();   break;
-                case 'usuarios':    cargarUsuarios();     break;
-                case 'solicitudes': cargarSolicitudes();  break;
-                case 'inventario':  cargarInventario();   break;
+                case 'dashboard':          cargarDashboard();          break;
+                case 'usuarios':           cargarUsuarios();            break;
+                case 'solicitudes':        cargarSolicitudes();         break;
+                case 'registros':          cargarRegistrosDeportivos(); break; // FIX #4
+                case 'inventario':         cargarInventarioPorTab();    break; // FIX #5
             }
         });
     });
@@ -103,18 +105,18 @@ document.addEventListener('DOMContentLoaded', function () {
     // ══════════════════════════════════════════════════════
     async function cargarDashboard() {
         try {
-            const res      = await fetchAdmin(`${API}/usuarios`);
+            const res       = await fetchAdmin(`${API}/usuarios`);
             const respuesta = await res.json();
             const usuarios  = respuesta.usuarios || [];
 
             document.getElementById('totalUsuarios').textContent = usuarios.length;
 
-            // Préstamos activos (solicitudes aprobadas)
+            // FIX #2/3: préstamos activos — estado es 'Aprobado' (sin 'a')
             try {
-                const resSol = await fetchAdmin(`${API}/solicitudes`);
+                const resSol  = await fetchAdmin(`${API}/solicitudes`);
                 const dataSol = await resSol.json();
-                const todas = dataSol.solicitudes || [];
-                const activos = todas.filter(s => s.estado === 'Aprobada').length;
+                const todas   = dataSol.solicitudes || [];
+                const activos = todas.filter(s => s.estado === 'Aprobado').length; // FIX #2
                 document.getElementById('prestamosActivos').textContent = activos;
             } catch (_) {}
 
@@ -188,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function () {
     window.eliminarUsuario = async function (id) {
         if (!confirm('¿Estás seguro de eliminar este usuario?')) return;
         try {
-            const res = await fetchAdmin(`${API}/usuarios/${id}`, { method: 'DELETE' });
+            const res       = await fetchAdmin(`${API}/usuarios/${id}`, { method: 'DELETE' });
             const respuesta = await res.json();
             if (res.ok) {
                 cargarUsuarios();
@@ -202,19 +204,21 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     // ══════════════════════════════════════════════════════
-    //  SOLICITUDES
+    //  SOLICITUDES  (FIX #1 + #2 + #3)
     // ══════════════════════════════════════════════════════
 
     // Badge en sidebar (pendientes)
     async function actualizarBadgeSolicitudes() {
         try {
-            const res  = await fetchAdmin(`${API}/solicitudes`);
-            const data = await res.json();
+            const res   = await fetchAdmin(`${API}/solicitudes`);
+            const data  = await res.json();
             const todas = data.solicitudes || [];
-            const pendientes = todas.filter(s => s.estado === 'Pendiente').length;
+            const pendientes  = todas.filter(s => s.estado === 'Pendiente').length;
+            const rechazadas  = todas.filter(s => s.estado === 'Rechazado').length; // FIX #3
 
-            const badge = document.getElementById('badgeSolicitudes');
+            const badge    = document.getElementById('badgeSolicitudes');
             const tabBadge = document.getElementById('tabBadgePendientes');
+            const tabBadgeRechazadas = document.getElementById('tabBadgeRechazadas'); // FIX #3
 
             if (pendientes > 0) {
                 badge.style.display = 'inline-block';
@@ -223,6 +227,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 badge.style.display = 'none';
             }
             if (tabBadge) tabBadge.textContent = pendientes;
+
+            // FIX #3: badge en tab rechazadas
+            if (tabBadgeRechazadas) {
+                if (rechazadas > 0) {
+                    tabBadgeRechazadas.style.display = 'inline-block';
+                    tabBadgeRechazadas.textContent   = rechazadas;
+                } else {
+                    tabBadgeRechazadas.style.display = 'none';
+                }
+            }
         } catch (err) {
             console.error('Error actualizando badge solicitudes:', err);
         }
@@ -230,20 +244,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function cargarSolicitudes() {
         try {
-            const res  = await fetchAdmin(`${API}/solicitudes`);
-            const data = await res.json();
+            const res   = await fetchAdmin(`${API}/solicitudes`);
+            const data  = await res.json();
             const todas = data.solicitudes || [];
 
-            const pendientes = todas.filter(s => s.estado === 'Pendiente');
-            const aprobadas  = todas.filter(s => s.estado === 'Aprobada');
+            // FIX #2: estado es 'Aprobado' (no 'Aprobada')
+            const pendientes  = todas.filter(s => s.estado === 'Pendiente');
+            const aprobadas   = todas.filter(s => s.estado === 'Aprobado');  // FIX #2
+            const rechazadas  = todas.filter(s => s.estado === 'Rechazado'); // FIX #3
 
-            renderFilaSolicitudes('tbodyPendientes', pendientes, true,  false);
-            renderFilaSolicitudes('tbodyAprobadas',  aprobadas,  false, true);
+            renderFilaSolicitudes('tbodyPendientes', pendientes, true,  false, false);
+            renderFilaSolicitudes('tbodyAprobadas',  aprobadas,  false, true,  false);
+            renderFilaRechazadas('tbodyRechazadas',  rechazadas);                       // FIX #3
             renderFilaSolicitudesTodas('tbodyTodas', todas);
 
-            // Actualizar badge
-            const badge = document.getElementById('badgeSolicitudes');
+            // Actualizar badges
+            const badge    = document.getElementById('badgeSolicitudes');
             const tabBadge = document.getElementById('tabBadgePendientes');
+            const tabBadgeRechazadas = document.getElementById('tabBadgeRechazadas');
+
             if (pendientes.length > 0) {
                 badge.style.display = 'inline-block';
                 badge.textContent   = pendientes.length;
@@ -252,6 +271,15 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             if (tabBadge) tabBadge.textContent = pendientes.length;
 
+            if (tabBadgeRechazadas) {
+                if (rechazadas.length > 0) {
+                    tabBadgeRechazadas.style.display = 'inline-block';
+                    tabBadgeRechazadas.textContent   = rechazadas.length;
+                } else {
+                    tabBadgeRechazadas.style.display = 'none';
+                }
+            }
+
         } catch (err) {
             console.error('Error cargando solicitudes:', err);
         }
@@ -259,6 +287,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderFilaSolicitudes(tbodyId, lista, mostrarAprobarRechazar, mostrarDevuelto) {
         const tbody = document.getElementById(tbodyId);
+        if (!tbody) return;
         if (!lista.length) {
             tbody.innerHTML = `<tr><td colspan="5" class="no-data">No hay solicitudes</td></tr>`;
             return;
@@ -291,8 +320,28 @@ document.addEventListener('DOMContentLoaded', function () {
         }).join('');
     }
 
+    // FIX #3: render especial para rechazadas con columna "Motivo"
+    function renderFilaRechazadas(tbodyId, lista) {
+        const tbody = document.getElementById(tbodyId);
+        if (!tbody) return;
+        if (!lista.length) {
+            tbody.innerHTML = `<tr><td colspan="5" class="no-data">No hay solicitudes rechazadas</td></tr>`;
+            return;
+        }
+        tbody.innerHTML = lista.map(s => `
+            <tr>
+                <td>${s.usuario_nombre || s.usuario_id}</td>
+                <td>${s.elemento_nombre || s.inventario_id}</td>
+                <td>${s.cantidad}</td>
+                <td>${formatFecha(s.fecha_solicitud)}</td>
+                <td class="motivo-rechazo">${s.mensaje_admin || '<em style="color:#999">Sin motivo registrado</em>'}</td>
+            </tr>
+        `).join('');
+    }
+
     function renderFilaSolicitudesTodas(tbodyId, lista) {
         const tbody = document.getElementById(tbodyId);
+        if (!tbody) return;
         if (!lista.length) {
             tbody.innerHTML = `<tr><td colspan="5" class="no-data">No hay solicitudes</td></tr>`;
             return;
@@ -302,7 +351,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <td>${s.usuario_nombre || s.usuario_id}</td>
                 <td>${s.elemento_nombre || s.inventario_id}</td>
                 <td>${s.cantidad}</td>
-                <td><span class="estado-badge estado-${(s.estado||'').toLowerCase().replace(' ','-')}">${s.estado}</span></td>
+                <td><span class="estado-badge estado-${(s.estado||'').toLowerCase()}">${s.estado}</span></td>
                 <td>${formatFecha(s.fecha_solicitud)}</td>
             </tr>
         `).join('');
@@ -318,7 +367,7 @@ document.addEventListener('DOMContentLoaded', function () {
     window.aprobarSolicitud = async function (id) {
         if (!confirm('¿Aprobar esta solicitud?')) return;
         try {
-            const res = await fetchAdmin(`${API}/solicitudes/${id}/aprobar`, { method: 'PUT' });
+            const res  = await fetchAdmin(`${API}/solicitudes/${id}/aprobar`, { method: 'PUT' });
             const data = await res.json();
             if (res.ok) {
                 mostrarToast('Solicitud aprobada', 'success');
@@ -353,7 +402,7 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const res = await fetchAdmin(`${API}/solicitudes/${solicitudRechazandoId}/rechazar`, {
                 method: 'PUT',
-                body: JSON.stringify({ motivo })
+                body: JSON.stringify({ mensaje: motivo }) // FIX #1: era { motivo }, debe ser { mensaje: motivo }
             });
             const data = await res.json();
             if (res.ok) {
@@ -373,7 +422,7 @@ document.addEventListener('DOMContentLoaded', function () {
     window.devolverSolicitud = async function (id) {
         if (!confirm('¿Marcar como devuelto?')) return;
         try {
-            const res = await fetchAdmin(`${API}/solicitudes/${id}/devolver`, { method: 'PUT' });
+            const res  = await fetchAdmin(`${API}/solicitudes/${id}/devolver`, { method: 'PUT' });
             const data = await res.json();
             if (res.ok) {
                 mostrarToast('Elemento marcado como devuelto', 'success');
@@ -387,7 +436,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
-    // Tabs de solicitudes
+    // Tabs de solicitudes — ahora soporta 4 tabs (pendientes/aprobadas/rechazadas/todas)
     document.querySelectorAll('[data-tab]').forEach(btn => {
         btn.addEventListener('click', function () {
             document.querySelectorAll('[data-tab]').forEach(b => b.classList.remove('active'));
@@ -395,23 +444,93 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const tab = this.getAttribute('data-tab');
             document.querySelectorAll('.tab-sol-content').forEach(c => c.classList.remove('active'));
-            document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+            const tabEl = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
+            if (tabEl) tabEl.classList.add('active');
         });
     });
 
     // ══════════════════════════════════════════════════════
-    //  INVENTARIO
+    //  REGISTROS DEPORTIVOS  (FIX #4)
+    //  Muestra solicitudes APROBADAS filtradas por categoría
     // ══════════════════════════════════════════════════════
-    async function cargarInventario() {
-        const grid = document.getElementById('inventoryGrid');
-        grid.innerHTML = '<p class="no-data">Cargando inventario...</p>';
+    const DEPORTES_CATEGORIAS = {
+        'futbol':     'Fútbol',
+        'baloncesto': 'Baloncesto',
+        'tenis':      'Tenis de Mesa',
+        'voleibol':   'Voleibol'
+    };
+
+    async function cargarRegistrosDeportivos(deporteActivo = 'futbol') {
         try {
-            const res  = await fetchAdmin(`${API}/inventario`);
+            const res   = await fetchAdmin(`${API}/solicitudes`);
+            const data  = await res.json();
+            const todas = data.solicitudes || [];
+            // Solo aprobadas
+            const aprobadas = todas.filter(s => s.estado === 'Aprobado');
+
+            // Renderizar cada tab
+            Object.entries(DEPORTES_CATEGORIAS).forEach(([clave, categoria]) => {
+                const tbody = document.getElementById('tbodyReg' +
+                    clave.charAt(0).toUpperCase() + clave.slice(1));
+                if (!tbody) return;
+
+                const filtradas = aprobadas.filter(s =>
+                    (s.categoria || '').toLowerCase() === categoria.toLowerCase()
+                );
+
+                if (!filtradas.length) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="no-data">No hay registros de ${categoria}</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = filtradas.map(s => `
+                    <tr>
+                        <td>${s.usuario_nombre || s.usuario_id}</td>
+                        <td>${s.elemento_nombre || s.inventario_id}</td>
+                        <td>${s.cantidad}</td>
+                        <td>${formatFecha(s.fecha_solicitud)}</td>
+                        <td>${formatFecha(s.fecha_respuesta)}</td>
+                    </tr>
+                `).join('');
+            });
+        } catch (err) {
+            console.error('Error cargando registros deportivos:', err);
+        }
+    }
+
+    // Tabs registros deportivos — ahora maneja 4 tabs
+    document.querySelectorAll('[data-deporte]').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('[data-deporte]').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            const dep = this.getAttribute('data-deporte');
+            document.querySelectorAll('.tab-dep-content').forEach(c => c.classList.remove('active'));
+            const tabEl = document.getElementById('tabDep' +
+                dep.charAt(0).toUpperCase() + dep.slice(1));
+            if (tabEl) tabEl.classList.add('active');
+        });
+    });
+
+    // ══════════════════════════════════════════════════════
+    //  INVENTARIO POR CATEGORÍA  (FIX #5)
+    // ══════════════════════════════════════════════════════
+    const CATEGORIAS_INV = ['Fútbol', 'Baloncesto', 'Tenis de Mesa', 'Voleibol', 'General'];
+
+    async function cargarInventarioPorTab(categoria = null) {
+        const cat = categoria || categoriaTabActiva;
+        categoriaTabActiva = cat;
+
+        const grid = document.getElementById('inventoryGrid');
+        if (!grid) return;
+        grid.innerHTML = '<p class="no-data">Cargando inventario...</p>';
+
+        try {
+            const catEncoded = encodeURIComponent(cat);
+            const res  = await fetchAdmin(`${API}/inventario?categoria=${catEncoded}`);
             const data = await res.json();
             const items = data.inventario || data || [];
 
             if (!items.length) {
-                grid.innerHTML = '<p class="no-data">No hay elementos en el inventario</p>';
+                grid.innerHTML = `<p class="no-data">No hay elementos en la categoría ${cat}</p>`;
                 return;
             }
 
@@ -445,33 +564,55 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Abrir modal agregar
+    // Tabs de categoría en inventario
+    document.querySelectorAll('[data-categoria]').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('[data-categoria]').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            const cat = this.getAttribute('data-categoria');
+            cargarInventarioPorTab(cat);
+        });
+    });
+
+    // Abrir modal agregar — FIX #5: pre-selecciona categoría del tab activo
     document.getElementById('btnAddInventario').addEventListener('click', () => {
         inventarioEditandoId = null;
         document.getElementById('modalTitle').textContent = 'Agregar Elemento';
         document.getElementById('formInventario').reset();
+
+        // Pre-seleccionar categoría activa y bloquear el select
+        const selectCat = document.getElementById('invCategoria');
+        selectCat.value    = categoriaTabActiva;
+        selectCat.disabled = true; // no puede cambiarla
+
         document.getElementById('modalInventario').classList.add('active');
     });
 
     // Cancelar modal inventario
     document.getElementById('btnCancelModal').addEventListener('click', () => {
         document.getElementById('modalInventario').classList.remove('active');
+        document.getElementById('invCategoria').disabled = false;
         inventarioEditandoId = null;
     });
 
     // Guardar inventario (crear o editar)
     document.getElementById('formInventario').addEventListener('submit', async function (e) {
         e.preventDefault();
+        const selectCat = document.getElementById('invCategoria');
         const payload = {
             nombre:    document.getElementById('invNombre').value.trim(),
-            categoria: document.getElementById('invCategoria').value,
+            categoria: selectCat.value,
             cantidad:  parseInt(document.getElementById('invCantidad').value),
             estado:    document.getElementById('invEstado').value
         };
 
+        // Re-habilitar antes de leer (disabled no se envía en formularios)
+        selectCat.disabled = false;
+
         try {
             let res;
-            if (inventarioEditandoId) {
+            const esEdicion = inventarioEditandoId !== null;
+            if (esEdicion) {
                 res = await fetchAdmin(`${API}/inventario/${inventarioEditandoId}`, {
                     method: 'PUT',
                     body: JSON.stringify(payload)
@@ -486,8 +627,8 @@ document.addEventListener('DOMContentLoaded', function () {
             if (res.ok) {
                 document.getElementById('modalInventario').classList.remove('active');
                 inventarioEditandoId = null;
-                mostrarToast(inventarioEditandoId ? 'Elemento actualizado' : 'Elemento agregado', 'success');
-                cargarInventario();
+                mostrarToast(esEdicion ? 'Elemento actualizado' : 'Elemento agregado', 'success');
+                cargarInventarioPorTab(); // recargar tab actual
             } else {
                 mostrarToast(data.mensaje || 'Error al guardar', 'error');
             }
@@ -496,7 +637,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Editar inventario
+    // Editar inventario — no bloquea categoría al editar
     window.editarInventario = async function (id) {
         try {
             const res  = await fetchAdmin(`${API}/inventario`);
@@ -506,11 +647,12 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!item) return;
 
             inventarioEditandoId = id;
-            document.getElementById('modalTitle').textContent = 'Editar Elemento';
-            document.getElementById('invNombre').value    = item.nombre;
-            document.getElementById('invCategoria').value = item.categoria;
-            document.getElementById('invCantidad').value  = item.cantidad;
-            document.getElementById('invEstado').value    = item.estado;
+            document.getElementById('modalTitle').textContent   = 'Editar Elemento';
+            document.getElementById('invNombre').value          = item.nombre;
+            document.getElementById('invCategoria').value       = item.categoria;
+            document.getElementById('invCategoria').disabled    = false; // libre al editar
+            document.getElementById('invCantidad').value        = item.cantidad;
+            document.getElementById('invEstado').value          = item.estado;
             document.getElementById('modalInventario').classList.add('active');
         } catch (err) {
             mostrarToast('Error cargando el elemento', 'error');
@@ -525,7 +667,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const data = await res.json();
             if (res.ok) {
                 mostrarToast('Elemento eliminado', 'success');
-                cargarInventario();
+                cargarInventarioPorTab();
             } else {
                 mostrarToast(data.mensaje || 'Error al eliminar', 'error');
             }
@@ -533,17 +675,6 @@ document.addEventListener('DOMContentLoaded', function () {
             mostrarToast('Error de conexión', 'error');
         }
     };
-
-    // ── Tabs registros deportivos ──────────────────────────
-    document.querySelectorAll('[data-deporte]').forEach(btn => {
-        btn.addEventListener('click', function () {
-            document.querySelectorAll('[data-deporte]').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            const dep = this.getAttribute('data-deporte');
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.getElementById('tab' + dep.charAt(0).toUpperCase() + dep.slice(1)).classList.add('active');
-        });
-    });
 
     // ── Utilidades ─────────────────────────────────────────
     function cerrarSidebar() {
@@ -554,7 +685,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Toast de notificación
     function mostrarToast(mensaje, tipo = 'success') {
         const colores = { success: '#228b22', error: '#d32f2f', info: '#1976d2' };
-        const toast = document.createElement('div');
+        const toast   = document.createElement('div');
         toast.style.cssText = `
             position:fixed; bottom:30px; right:30px; z-index:9999;
             background:${colores[tipo] || colores.success}; color:#fff;
@@ -662,16 +793,71 @@ document.addEventListener('DOMContentLoaded', function () {
             font-size: 0.82em;
             font-weight: 600;
         }
-        .estado-pendiente  { background: #fff3e0; color: #f57c00; }
-        .estado-aprobada   { background: #e8f5e9; color: #228b22; }
-        .estado-rechazada  { background: #fce4ec; color: #d32f2f; }
-        .estado-devuelta   { background: #e3f2fd; color: #1976d2; }
-        .estado-disponible { background: #e8f5e9; color: #228b22; }
-        .estado-en-préstamo{ background: #fff3e0; color: #f57c00; }
-        .estado-mantenimiento { background: #fce4ec; color: #d32f2f; }
-        /* Tabs solicitudes */
+        .estado-pendiente    { background: #fff3e0; color: #f57c00; }
+        .estado-aprobado     { background: #e8f5e9; color: #228b22; }
+        .estado-rechazado    { background: #fce4ec; color: #d32f2f; }
+        .estado-devuelto     { background: #e3f2fd; color: #1976d2; }
+        .estado-disponible   { background: #e8f5e9; color: #228b22; }
+        .estado-agotado      { background: #fff3e0; color: #f57c00; }
+        .estado-mantenimiento{ background: #fce4ec; color: #d32f2f; }
+        /* Tabs solicitudes y deportes */
         .tab-sol-content { display: none; }
         .tab-sol-content.active { display: block; }
+        .tab-dep-content { display: none; }
+        .tab-dep-content.active { display: block; }
+        /* Tabs inventario por categoría */
+        .tabs-categoria {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .tab-cat-btn {
+            padding: 8px 18px;
+            border: 2px solid var(--verde-principal);
+            background: #fff;
+            color: var(--verde-principal);
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.88em;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .tab-cat-btn:hover,
+        .tab-cat-btn.active {
+            background: var(--verde-principal);
+            color: #fff;
+        }
+        /* Columna motivo de rechazo */
+        .motivo-rechazo {
+            font-size: 0.85em;
+            color: #555;
+            max-width: 220px;
+            white-space: pre-line;
+        }
+        /* Tabs deportes */
+        .tabs-deportes {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .tab-dep-btn {
+            padding: 8px 18px;
+            border: 2px solid var(--verde-principal);
+            background: #fff;
+            color: var(--verde-principal);
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.88em;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .tab-dep-btn:hover,
+        .tab-dep-btn.active {
+            background: var(--verde-principal);
+            color: #fff;
+        }
     `;
     document.head.appendChild(style);
 });
