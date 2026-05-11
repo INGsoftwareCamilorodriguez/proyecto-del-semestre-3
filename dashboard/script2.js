@@ -190,38 +190,36 @@ document.addEventListener('DOMContentLoaded', function () {
                     padding:10px;border-radius:8px;margin:10px 0;font-size:0.9em"></div>
                 <div class="form-group">
                     <label>Nombre completo</label>
-                    <input type="text" id="cuNombre" placeholder="Ej: Juan García">
+                    <input type="text" id="cuNombre" placeholder="kamilo">
                 </div>
                 <div class="form-group">
                     <label>Programa académico</label>
-                    <input type="text" id="cuPrograma" placeholder="Ej: Ingeniería de Sistemas">
+                    <input type="text" id="cuPrograma" placeholder="ingeniería de software">
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Código</label>
-                        <input type="text" id="cuCodigo" placeholder="Ej: 20241234">
+                        <input type="text" id="cuCodigo" placeholder="C.C 12346358">
                     </div>
                     <div class="form-group">
                         <label>Tipo de usuario</label>
                         <select id="cuTipo">
                             <option value="Estudiante">Estudiante</option>
                             <option value="Docente">Docente</option>
-                            <option value="Visitante">Visitante</option>
                             <option value="Admin">Admin</option>
                         </select>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Correo electrónico</label>
-                    <input type="email" id="cuCorreo" placeholder="usuario@correo.com">
+                    <input type="email" id="cuCorreo" placeholder="FET@correo.com">
                 </div>
                 <div class="form-group">
                     <label>Contraseña</label>
                     <input type="password" id="cuContrasena" placeholder="Mín. 8 caracteres, 1 número, 1 especial">
                 </div>
                 <div class="modal-actions">
-                    <button class="btn-save" id="btnConfirmCrearUsuario">
-                        <i class="fas fa-user-plus"></i> Crear Usuario
+                    <button class="btn-save" id="btnConfirmCrearUsuario"> Crear Usuario
                     </button>
                     <button class="btn-cancel" id="btnCancelCrearUsuario">Cancelar</button>
                 </div>
