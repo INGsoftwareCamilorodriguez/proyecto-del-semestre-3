@@ -80,7 +80,6 @@ def registrar_usuario():
     if errores:
         return jsonify({'ok': False, 'errores': errores}), 400
 
-    # Bloquear registro de Admin desde el formulario público
     tipo_solicitado = data.get('tipo', 'Estudiante')
     if tipo_solicitado == 'Admin':
         return jsonify({'ok': False, 'mensaje': 'No permitido'}), 403
@@ -148,17 +147,27 @@ def login():
         db.close()
 
 # ── GET /api/usuarios  (solo admin) ──────────────────
+# ?todos=true  → devuelve activos e inactivos
+# ?todos=false → solo activos (por defecto)
 @usuarios_bp.route('/usuarios', methods=['GET'])
 @solo_admin
 def listar_usuarios():
+    mostrar_todos = request.args.get('todos', 'false').lower() == 'true'
     try:
         db = get_db()
         cursor = db.cursor(dictionary=True)
-        cursor.execute(
-            """SELECT id, nombre, programa, codigo, correo, tipo
-               FROM usuarios WHERE activo = 1 AND tipo != 'Admin'
-               ORDER BY creado_en DESC"""
-        )
+        if mostrar_todos:
+            cursor.execute(
+                """SELECT id, nombre, programa, codigo, correo, tipo, activo
+                   FROM usuarios WHERE tipo != 'Admin'
+                   ORDER BY activo DESC, creado_en DESC"""
+            )
+        else:
+            cursor.execute(
+                """SELECT id, nombre, programa, codigo, correo, tipo, activo
+                   FROM usuarios WHERE activo = 1 AND tipo != 'Admin'
+                   ORDER BY creado_en DESC"""
+            )
         usuarios = cursor.fetchall()
         return jsonify({'ok': True, 'usuarios': usuarios}), 200
     finally:
@@ -175,18 +184,36 @@ def eliminar_usuario(uid):
     try:
         db = get_db()
         cursor = db.cursor()
-        cursor.execute("UPDATE usuarios SET activo = 0 WHERE id = %s AND tipo != 'Admin'", (uid,))
+        cursor.execute(
+            "UPDATE usuarios SET activo = 0 WHERE id = %s AND tipo != 'Admin'", (uid,)
+        )
         db.commit()
         if cursor.rowcount == 0:
             return jsonify({'ok': False, 'mensaje': 'Usuario no encontrado'}), 404
-        return jsonify({'ok': True, 'mensaje': 'Usuario eliminado'}), 200
+        return jsonify({'ok': True, 'mensaje': 'Usuario desactivado'}), 200
+    finally:
+        cursor.close()
+        db.close()
+
+# ── PUT /api/usuarios/<id>/reactivar  (solo admin) ───
+@usuarios_bp.route('/usuarios/<int:uid>/reactivar', methods=['PUT'])
+@solo_admin
+def reactivar_usuario(uid):
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute(
+            "UPDATE usuarios SET activo = 1 WHERE id = %s AND tipo != 'Admin'", (uid,)
+        )
+        db.commit()
+        if cursor.rowcount == 0:
+            return jsonify({'ok': False, 'mensaje': 'Usuario no encontrado'}), 404
+        return jsonify({'ok': True, 'mensaje': 'Usuario reactivado'}), 200
     finally:
         cursor.close()
         db.close()
 
 # ── POST /api/usuarios/crear  (solo admin) ───────────
-# A diferencia de /api/registro, esta ruta permite crear
-# cualquier tipo de usuario incluyendo Admin.
 @usuarios_bp.route('/usuarios/crear', methods=['POST'])
 @solo_admin
 def crear_usuario_admin():

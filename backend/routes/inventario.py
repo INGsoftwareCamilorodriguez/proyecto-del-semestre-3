@@ -28,10 +28,10 @@ def solo_admin(f):
         return f(*args, **kwargs)
     return decorador
 
-# ── GET /api/inventario  (público: usuarios ven el stock) ──
+# ── GET /api/inventario  (público) ──────────────────────
 @inventario_bp.route('/inventario', methods=['GET'])
 def listar_inventario():
-    categoria = request.args.get('categoria')  # filtro opcional
+    categoria = request.args.get('categoria')
     try:
         db = get_db()
         cursor = db.cursor(dictionary=True)
@@ -54,7 +54,7 @@ def listar_inventario():
     finally:
         cursor.close(); db.close()
 
-# ── POST /api/inventario  (solo admin: crear elemento) ───
+# ── POST /api/inventario  (solo admin) ──────────────────
 @inventario_bp.route('/inventario', methods=['POST'])
 @solo_admin
 def crear_elemento():
@@ -96,7 +96,7 @@ def crear_elemento():
     finally:
         cursor.close(); db.close()
 
-# ── PUT /api/inventario/<id>  (solo admin: editar) ───────
+# ── PUT /api/inventario/<id>  (solo admin) ──────────────
 @inventario_bp.route('/inventario/<int:inv_id>', methods=['PUT'])
 @solo_admin
 def editar_elemento(inv_id):
@@ -147,11 +147,58 @@ def editar_elemento(inv_id):
 def eliminar_elemento(inv_id):
     try:
         db = get_db()
-        cursor = db.cursor()
-        cursor.execute("DELETE FROM inventario WHERE id = %s", (inv_id,))
+        cursor = db.cursor(dictionary=True)
+
+        # Verificar si hay solicitudes asociadas a este producto
+        cursor.execute(
+            """SELECT COUNT(*) as total FROM solicitudes_prestamo
+               WHERE inventario_id = %s AND estado IN ('Pendiente', 'Aprobado')""",
+            (inv_id,)
+        )
+        resultado = cursor.fetchone()
+
+        if resultado['total'] > 0:
+            return jsonify({
+                'ok': False,
+                'mensaje': f'No se puede eliminar: hay {resultado["total"]} solicitud(es) activa(s) para este producto. Espera a que sean rechazadas o devueltas.'
+            }), 409
+
+        # Si no hay solicitudes activas, eliminar en orden correcto
+        # 1) Obtener IDs de solicitudes históricas de este producto
+        cursor.execute(
+            "SELECT id FROM solicitudes_prestamo WHERE inventario_id = %s",
+            (inv_id,)
+        )
+        solicitudes = cursor.fetchall()
+        ids_solicitudes = [s['id'] for s in solicitudes]
+
+        cursor2 = db.cursor()
+
+        # 2) Eliminar mensajes que referencian esas solicitudes
+        if ids_solicitudes:
+            formato = ','.join(['%s'] * len(ids_solicitudes))
+            cursor2.execute(
+                f"DELETE FROM mensajes WHERE solicitud_id IN ({formato})",
+                ids_solicitudes
+            )
+
+        # 3) Eliminar las solicitudes históricas
+        cursor2.execute(
+            "DELETE FROM solicitudes_prestamo WHERE inventario_id = %s",
+            (inv_id,)
+        )
+
+        # 4) Eliminar el producto
+        cursor2.execute("DELETE FROM inventario WHERE id = %s", (inv_id,))
         db.commit()
-        if cursor.rowcount == 0:
+
+        if cursor2.rowcount == 0:
             return jsonify({'ok': False, 'mensaje': 'Elemento no encontrado'}), 404
-        return jsonify({'ok': True, 'mensaje': 'Elemento eliminado'}), 200
+
+        return jsonify({'ok': True, 'mensaje': 'Elemento eliminado correctamente'}), 200
+
     finally:
-        cursor.close(); db.close()
+        cursor.close()
+        if 'cursor2' in dir():
+            cursor2.close()
+        db.close()

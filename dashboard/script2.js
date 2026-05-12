@@ -89,34 +89,63 @@ document.addEventListener('DOMContentLoaded', function () {
     // ══════════════════════════════════════════════════════
     async function cargarDashboard() {
         try {
-            const res       = await fetchAdmin(`${API}/usuarios`);
-            const respuesta = await res.json();
-            const usuarios  = respuesta.usuarios || [];
-            document.getElementById('totalUsuarios').textContent = usuarios.length;
+            const resU    = await fetchAdmin(`${API}/usuarios?todos=true`);
+            const dataU   = await resU.json();
+            const usuarios = dataU.usuarios || [];
+
+            const activos     = usuarios.filter(u => u.activo == 1).length;
+            const inactivos   = usuarios.filter(u => u.activo == 0).length;
+            const estudiantes = usuarios.filter(u => u.tipo === 'Estudiante').length;
+            const docentes    = usuarios.filter(u => u.tipo === 'Docente').length;
+
+            setDashStat('dashActivos',     activos);
+            setDashStat('dashInactivos',   inactivos);
+            setDashStat('dashEstudiantes', estudiantes);
+            setDashStat('dashDocentes',    docentes);
+
+            // Actividad reciente — últimas solicitudes
             try {
                 const resSol  = await fetchAdmin(`${API}/solicitudes`);
                 const dataSol = await resSol.json();
                 const todas   = dataSol.solicitudes || [];
-                const activos = todas.filter(s => s.estado === 'Aprobado').length;
-                document.getElementById('prestamosActivos').textContent = activos;
+                const activityList = document.getElementById('recentActivity');
+                const recientes = [...todas].sort((a,b) =>
+                    new Date(b.fecha_solicitud) - new Date(a.fecha_solicitud)
+                ).slice(0, 6);
+
+                if (recientes.length === 0) {
+                    activityList.innerHTML = '<p class="no-data">No hay actividad reciente</p>';
+                } else {
+                    activityList.innerHTML = recientes.map(s => {
+                        const iconMap = {
+                            'Pendiente': { icon: '⏳', cls: 'act-pendiente' },
+                            'Aprobado':  { icon: '✅', cls: 'act-aprobado'  },
+                            'Rechazado': { icon: '❌', cls: 'act-rechazado' },
+                            'Devuelto':  { icon: '↩️', cls: 'act-devuelto'  }
+                        };
+                        const meta = iconMap[s.estado] || { icon: '📋', cls: '' };
+                        return `
+                        <div class="activity-item ${meta.cls}">
+                            <span class="act-icon">${meta.icon}</span>
+                            <div class="act-body">
+                                <strong>${s.usuario_nombre || 'Usuario'}</strong>
+                                solicitó <em>${s.elemento_nombre || 'elemento'}</em>
+                                <span class="estado-badge estado-${(s.estado||'').toLowerCase()}">${s.estado}</span>
+                                <br><small>${formatFecha(s.fecha_solicitud)}</small>
+                            </div>
+                        </div>`;
+                    }).join('');
+                }
             } catch (_) {}
-            const activityList = document.getElementById('recentActivity');
-            if (usuarios.length === 0) {
-                activityList.innerHTML = '<p class="no-data">No hay actividad reciente</p>';
-                return;
-            }
-            activityList.innerHTML = usuarios.slice(0, 5).map(u => `
-                <div class="activity-item">
-                    <i class="fas fa-user-circle"></i>
-                    <div>
-                        <strong>${u.nombre}</strong> se registró como ${u.tipo}
-                        <br><small>${u.programa}</small>
-                    </div>
-                </div>
-            `).join('');
+
         } catch (err) {
             console.error('Error cargando dashboard:', err);
         }
+    }
+
+    function setDashStat(id, val) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
     }
 
     // ══════════════════════════════════════════════════════
@@ -124,11 +153,13 @@ document.addEventListener('DOMContentLoaded', function () {
     // ══════════════════════════════════════════════════════
     async function cargarUsuarios() {
         try {
-            const res       = await fetchAdmin(`${API}/usuarios`);
+            const res       = await fetchAdmin(`${API}/usuarios?todos=true`);
             const respuesta = await res.json();
             let usuarios    = respuesta.usuarios || [];
+
             const searchTerm = document.getElementById('searchUsuario').value.toLowerCase();
             const filterTipo = document.getElementById('filterTipo').value;
+
             if (searchTerm) {
                 usuarios = usuarios.filter(u =>
                     u.nombre.toLowerCase().includes(searchTerm) ||
@@ -138,21 +169,37 @@ document.addEventListener('DOMContentLoaded', function () {
             if (filterTipo) {
                 usuarios = usuarios.filter(u => u.tipo === filterTipo);
             }
+
             const tbody = document.getElementById('usuariosTableBody');
             if (usuarios.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" class="no-data">No se encontraron usuarios</td></tr>';
                 return;
             }
             tbody.innerHTML = usuarios.map(u => `
-                <tr>
+                <tr style="${u.activo == 0 ? 'opacity:0.6;background:#fafafa;' : ''}">
                     <td>${u.nombre}</td>
                     <td>${u.programa}</td>
                     <td><span class="badge">${u.tipo}</span></td>
                     <td>
-                        <div class="action-btns">
-                            <button class="btn-delete" onclick="eliminarUsuario(${u.id})" title="Eliminar">
-                                <i class="fas fa-trash"></i>
+                        <span class="estado-badge ${u.activo == 1 ? 'estado-aprobado' : 'estado-rechazado'}">
+                            ${u.activo == 1 ? '● Activo' : '● Inactivo'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="gear-wrapper">
+                            <button class="btn-gear" onclick="toggleGearMenu(event, ${u.id})" title="Acciones">
+                                ⚙️
                             </button>
+                            <div class="gear-menu" id="gearMenu_${u.id}">
+                                ${u.activo == 1
+                                    ? `<button class="gear-item gear-danger" onclick="desactivarUsuario(${u.id})">
+                                            🚫 Desactivar usuario
+                                       </button>`
+                                    : `<button class="gear-item gear-success" onclick="reactivarUsuario(${u.id})">
+                                            ✅ Reactivar usuario
+                                       </button>`
+                                }
+                            </div>
                         </div>
                     </td>
                 </tr>
@@ -164,19 +211,54 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    window.eliminarUsuario = async function (id) {
-        if (!confirm('¿Estás seguro de eliminar este usuario?')) return;
+    // Cerrar menús de engranaje al hacer click fuera
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.gear-wrapper')) {
+            document.querySelectorAll('.gear-menu.open').forEach(m => m.classList.remove('open'));
+        }
+    });
+
+    window.toggleGearMenu = function(e, id) {
+        e.stopPropagation();
+        const menu = document.getElementById('gearMenu_' + id);
+        const wasOpen = menu.classList.contains('open');
+        document.querySelectorAll('.gear-menu.open').forEach(m => m.classList.remove('open'));
+        if (!wasOpen) menu.classList.add('open');
+    };
+
+    // ── DESACTIVAR usuario (activo → inactivo) ──────────
+    window.desactivarUsuario = async function (id) {
+        if (!confirm('¿Desactivar este usuario? No podrá iniciar sesión.')) return;
         try {
-            const res       = await fetchAdmin(`${API}/usuarios/${id}`, { method: 'DELETE' });
-            const respuesta = await res.json();
+            const res = await fetchAdmin(`${API}/usuarios/${id}`, { method: 'DELETE' });
+            const data = await res.json();
             if (res.ok) {
+                mostrarToast('Usuario desactivado', 'info');
                 cargarUsuarios();
                 cargarDashboard();
             } else {
-                alert('Error al eliminar: ' + respuesta.mensaje);
+                mostrarToast(data.mensaje || 'Error al desactivar', 'error');
             }
         } catch (err) {
-            alert('Error de conexión con el servidor');
+            mostrarToast('Error de conexión con el servidor', 'error');
+        }
+    };
+
+    // ── REACTIVAR usuario (inactivo → activo) ───────────
+    window.reactivarUsuario = async function (id) {
+        if (!confirm('¿Reactivar este usuario?')) return;
+        try {
+            const res       = await fetchAdmin(`${API}/usuarios/${id}/reactivar`, { method: 'PUT' });
+            const respuesta = await res.json();
+            if (res.ok) {
+                mostrarToast('Usuario reactivado', 'success');
+                cargarUsuarios();
+                cargarDashboard();
+            } else {
+                mostrarToast('Error: ' + respuesta.mensaje, 'error');
+            }
+        } catch (err) {
+            mostrarToast('Error de conexión con el servidor', 'error');
         }
     };
 
@@ -185,21 +267,21 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.insertAdjacentHTML('beforeend', `
         <div class="modal" id="modalCrearUsuario">
             <div class="modal-content">
-                <h3><i class="fas fa-user-plus" style="color:var(--verde-principal)"></i> Agregar Usuario</h3>
+                <h3>➕ Agregar Usuario</h3>
                 <div id="errorCrearUsuario" style="display:none;background:#fce4ec;color:#d32f2f;
                     padding:10px;border-radius:8px;margin:10px 0;font-size:0.9em"></div>
                 <div class="form-group">
                     <label>Nombre completo</label>
-                    <input type="text" id="cuNombre" placeholder="kamilo">
+                    <input type="text" id="cuNombre" placeholder="Nombre completo">
                 </div>
                 <div class="form-group">
                     <label>Programa académico</label>
-                    <input type="text" id="cuPrograma" placeholder="ingeniería de software">
+                    <input type="text" id="cuPrograma" placeholder="Ej: Ingeniería de Software">
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Código</label>
-                        <input type="text" id="cuCodigo" placeholder="C.C 12346358">
+                        <label>Código / Identificación</label>
+                        <input type="text" id="cuCodigo" placeholder="C.C 12345678">
                     </div>
                     <div class="form-group">
                         <label>Tipo de usuario</label>
@@ -212,39 +294,35 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
                 <div class="form-group">
                     <label>Correo electrónico</label>
-                    <input type="email" id="cuCorreo" placeholder="FET@correo.com">
+                    <input type="email" id="cuCorreo" placeholder="correo@ejemplo.com">
                 </div>
                 <div class="form-group">
                     <label>Contraseña</label>
                     <input type="password" id="cuContrasena" placeholder="Mín. 8 caracteres, 1 número, 1 especial">
                 </div>
                 <div class="modal-actions">
-                    <button class="btn-save" id="btnConfirmCrearUsuario"> Crear Usuario
-                    </button>
+                    <button class="btn-save" id="btnConfirmCrearUsuario">➕ Crear Usuario</button>
                     <button class="btn-cancel" id="btnCancelCrearUsuario">Cancelar</button>
                 </div>
             </div>
         </div>`);
     }
 
-    // Inyectar botón en section-header de usuarios
     const secHeader = document.querySelector('#usuarios .section-header');
     if (secHeader && !document.getElementById('btnAddUsuario')) {
         const btn = document.createElement('button');
         btn.className = 'btn-add';
         btn.id = 'btnAddUsuario';
-        btn.innerHTML = '<i class="fas fa-user-plus"></i> Agregar Usuario';
+        btn.innerHTML = '➕ Agregar Usuario';
         secHeader.appendChild(btn);
     }
 
     document.addEventListener('click', function (e) {
         if (e.target.closest('#btnAddUsuario')) {
             document.getElementById('errorCrearUsuario').style.display = 'none';
-            document.getElementById('cuNombre').value = '';
-            document.getElementById('cuPrograma').value = '';
-            document.getElementById('cuCodigo').value = '';
-            document.getElementById('cuCorreo').value = '';
-            document.getElementById('cuContrasena').value = '';
+            ['cuNombre','cuPrograma','cuCodigo','cuCorreo','cuContrasena'].forEach(id =>
+                document.getElementById(id).value = ''
+            );
             document.getElementById('cuTipo').value = 'Estudiante';
             document.getElementById('modalCrearUsuario').classList.add('active');
         }
@@ -367,18 +445,12 @@ document.addEventListener('DOMContentLoaded', function () {
             let acciones = '';
             if (mostrarAprobarRechazar) {
                 acciones = `
-                    <button class="btn-aprobar" onclick="aprobarSolicitud(${s.id})">
-                        <i class="fas fa-check"></i> Aprobar
-                    </button>
-                    <button class="btn-rechazar" onclick="abrirModalRechazo(${s.id})">
-                        <i class="fas fa-times"></i> Rechazar
-                    </button>`;
+                    <button class="btn-aprobar" onclick="aprobarSolicitud(${s.id})">✔ Aprobar</button>
+                    <button class="btn-rechazar" onclick="abrirModalRechazo(${s.id})">✖ Rechazar</button>`;
             }
             if (mostrarDevuelto) {
                 acciones = `
-                    <button class="btn-devuelto" onclick="devolverSolicitud(${s.id})">
-                        <i class="fas fa-undo"></i> Devuelto
-                    </button>`;
+                    <button class="btn-devuelto" onclick="devolverSolicitud(${s.id})">↩ Devuelto</button>`;
             }
             return `
                 <tr>
@@ -589,8 +661,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         </p>
                     </div>
                     <div class="action-btns" style="margin-top:15px">
-                        <button class="btn-edit" onclick="editarInventario(${item.id})"><i class="fas fa-edit"></i></button>
-                        <button class="btn-delete" onclick="eliminarInventario(${item.id})"><i class="fas fa-trash"></i></button>
+                        <button class="btn-edit" onclick="editarInventario(${item.id})" title="Editar">✏️</button>
+                        <button class="btn-delete" onclick="eliminarInventario(${item.id})" title="Eliminar">🗑️</button>
                     </div>
                 </div>
             `).join('');
@@ -809,12 +881,73 @@ document.addEventListener('DOMContentLoaded', function () {
             from { transform:translateX(100px); opacity:0; }
             to   { transform:translateX(0);     opacity:1; }
         }
-        .activity-item {
-            display:flex;align-items:center;gap:15px;
-            padding:15px;border-bottom:1px solid #f0f0f0;transition:background 0.3s;
+
+        /* ── Gear / Dropdown ── */
+        .gear-wrapper { position:relative; display:inline-block; }
+        .btn-gear {
+            background:none; border:none; font-size:1.4em;
+            cursor:pointer; padding:4px 8px; border-radius:8px;
+            transition:transform 0.3s, background 0.2s;
+            line-height:1;
         }
-        .activity-item:hover { background:var(--verde-claro); }
-        .activity-item i { font-size:1.5em;color:var(--verde-principal); }
+        .btn-gear:hover { background:#f0f0f0; transform:rotate(45deg); }
+        .gear-menu {
+            display:none; position:absolute; right:0; top:calc(100% + 6px);
+            background:#fff; border:1px solid #e0e0e0; border-radius:10px;
+            box-shadow:0 6px 24px rgba(0,0,0,0.13); min-width:190px;
+            z-index:500; overflow:hidden; animation:fadeIn 0.18s ease;
+        }
+        .gear-menu.open { display:block; }
+        .gear-item {
+            display:flex; align-items:center; gap:8px;
+            width:100%; padding:11px 16px; border:none; background:none;
+            font-size:0.9em; cursor:pointer; text-align:left;
+            transition:background 0.15s;
+        }
+        .gear-item:hover { background:#f5f5f5; }
+        .gear-danger  { color:#d32f2f; }
+        .gear-success { color:#228b22; }
+
+        /* ── Dashboard extra stats ── */
+        .dash-extra-row {
+            display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+            gap:14px; margin-bottom:24px;
+        }
+        .dash-mini-card {
+            background:#fff; border-radius:12px; padding:18px 20px;
+            box-shadow:0 2px 10px rgba(0,0,0,0.06);
+            display:flex; flex-direction:column; gap:4px;
+            border-left:4px solid #e0e0e0;
+        }
+        .dash-mini-card.green  { border-left-color:#228b22; }
+        .dash-mini-card.blue   { border-left-color:#1976d2; }
+        .dash-mini-card.orange { border-left-color:#f57c00; }
+        .dash-mini-card.red    { border-left-color:#d32f2f; }
+        .dash-mini-card.purple { border-left-color:#7b1fa2; }
+        .dash-mini-label { font-size:0.78em; color:#888; font-weight:500; }
+        .dash-mini-value { font-size:1.6em; font-weight:700; color:#333; }
+
+        /* ── Activity items ── */
+        .activity-item {
+            display:flex; align-items:flex-start; gap:14px;
+            padding:14px 16px; border-bottom:1px solid #f0f0f0;
+            transition:background 0.2s; border-radius:8px;
+        }
+        .activity-item:hover { background:#f9fdf9; }
+        .act-icon { font-size:1.4em; line-height:1; min-width:28px; }
+        .act-body { font-size:0.9em; color:#444; line-height:1.6; }
+        .act-body strong { color:#222; }
+        .act-body small  { color:#999; }
+        .act-body .estado-badge { margin-left:6px; vertical-align:middle; }
+
+        /* ── Metric icon ── */
+        .metric-icon {
+            width:52px; height:52px; border-radius:14px;
+            display:flex; align-items:center; justify-content:center;
+            font-size:1.6em; flex-shrink:0;
+        }
+
+        /* ── badges ── */
         .badge { background:var(--verde-claro);color:var(--verde-principal);padding:3px 10px;border-radius:15px;font-size:0.85em; }
         .badge-nav {
             background:#d32f2f;color:#fff;border-radius:50%;font-size:0.72em;font-weight:700;

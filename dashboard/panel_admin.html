@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Administrador - Bodega Deportiva FET</title>
     <link rel="stylesheet" href="/dashboard/style2.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="admin-container">
@@ -78,6 +77,7 @@
                 </button>
                 <h3>Panel de Administración</h3>
                 <div class="header-user">
+                    <i class="fas fa-user-shield"></i>
                 </div>
             </header>
 
@@ -85,33 +85,34 @@
             <section class="content-section active" id="dashboard">
                 <h1>Dashboard</h1>
                 
+                <!-- Solo 4 tarjetas: Activos, Inactivos, Estudiantes, Docentes -->
                 <div class="metrics-grid">
                     <div class="metric-card">
+                        <div class="metric-icon" style="background:#e8f5e9;color:#228b22">👤</div>
                         <div class="metric-content">
-                            <h3>Total Usuarios</h3>
-                            <p class="metric-value" id="totalUsuarios">0</p>
-                            <span class="metric-trend positive">12%</span>
+                            <h3>Usuarios Activos</h3>
+                            <p class="metric-value" id="dashActivos">0</p>
                         </div>
                     </div>
                     <div class="metric-card">
+                        <div class="metric-icon" style="background:#fce4ec;color:#d32f2f">🚫</div>
                         <div class="metric-content">
-                            <h3>Registros Fútbol</h3>
-                            <p class="metric-value" id="totalFutbol">0</p>
-                            <span class="metric-trend positive">8%</span>
+                            <h3>Usuarios Inactivos</h3>
+                            <p class="metric-value" id="dashInactivos">0</p>
                         </div>
                     </div>
                     <div class="metric-card">
+                        <div class="metric-icon" style="background:#e3f2fd;color:#1976d2">🎓</div>
                         <div class="metric-content">
-                            <h3>Registros Tenis de Mesa</h3>
-                            <p class="metric-value" id="totalTenis">0</p>
-                            <span class="metric-trend positive">15%</span>
+                            <h3>Estudiantes</h3>
+                            <p class="metric-value" id="dashEstudiantes">0</p>
                         </div>
                     </div>
                     <div class="metric-card">
+                        <div class="metric-icon" style="background:#fff3e0;color:#f57c00">📚</div>
                         <div class="metric-content">
-                            <h3>Préstamos Activos</h3>
-                            <p class="metric-value" id="prestamosActivos">0</p>
-                            <span class="metric-trend negative">3%</span>
+                            <h3>Docentes</h3>
+                            <p class="metric-value" id="dashDocentes">0</p>
                         </div>
                     </div>
                 </div>
@@ -137,7 +138,6 @@
                         <option value="">Todos los tipos</option>
                         <option value="Estudiante">Estudiante</option>
                         <option value="Docente">Docente</option>
-                        <option value="Visitante">Visitante</option>
                     </select>
                 </div>
                 <div class="table-container">
@@ -147,6 +147,7 @@
                                 <th>Nombre</th>
                                 <th>Programa</th>
                                 <th>Tipo</th>
+                                <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -162,7 +163,6 @@
             <section class="content-section" id="solicitudes">
                 <h1>Solicitudes de Préstamo</h1>
 
-                <!-- FIX #3: 4 tabs — Pendientes / Aprobadas / Rechazadas / Todas -->
                 <div class="tabs" style="margin-bottom:20px">
                     <button class="tab-btn active" data-tab="pendientes">
                         <i class="fas fa-clock"></i> Pendientes
@@ -180,184 +180,86 @@
                     </button>
                 </div>
 
-                <!-- Tabla pendientes -->
                 <div class="tab-sol-content active" id="tabPendientes">
                     <div class="table-container">
                         <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Usuario</th>
-                                    <th>Elemento</th>
-                                    <th>Cantidad</th>
-                                    <th>Fecha</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbodyPendientes">
-                                <tr><td colspan="5" class="no-data">Cargando...</td></tr>
-                            </tbody>
+                            <thead><tr><th>Usuario</th><th>Elemento</th><th>Cantidad</th><th>Fecha</th><th>Acciones</th></tr></thead>
+                            <tbody id="tbodyPendientes"><tr><td colspan="5" class="no-data">Cargando...</td></tr></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Tabla aprobadas -->
                 <div class="tab-sol-content" id="tabAprobadas">
                     <div class="table-container">
                         <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Usuario</th>
-                                    <th>Elemento</th>
-                                    <th>Cantidad</th>
-                                    <th>Fecha</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbodyAprobadas">
-                                <tr><td colspan="5" class="no-data">Cargando...</td></tr>
-                            </tbody>
+                            <thead><tr><th>Usuario</th><th>Elemento</th><th>Cantidad</th><th>Fecha</th><th>Acciones</th></tr></thead>
+                            <tbody id="tbodyAprobadas"><tr><td colspan="5" class="no-data">Cargando...</td></tr></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- FIX #3: Tab Rechazadas — columna extra "Motivo" -->
                 <div class="tab-sol-content" id="tabRechazadas">
                     <div class="table-container">
                         <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Usuario</th>
-                                    <th>Elemento</th>
-                                    <th>Cantidad</th>
-                                    <th>Fecha</th>
-                                    <th>Motivo del Rechazo</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbodyRechazadas">
-                                <tr><td colspan="5" class="no-data">No hay solicitudes rechazadas</td></tr>
-                            </tbody>
+                            <thead><tr><th>Usuario</th><th>Elemento</th><th>Cantidad</th><th>Fecha</th><th>Motivo del Rechazo</th></tr></thead>
+                            <tbody id="tbodyRechazadas"><tr><td colspan="5" class="no-data">No hay solicitudes rechazadas</td></tr></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Tabla todas -->
                 <div class="tab-sol-content" id="tabTodas">
                     <div class="table-container">
                         <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Usuario</th>
-                                    <th>Elemento</th>
-                                    <th>Cantidad</th>
-                                    <th>Estado</th>
-                                    <th>Fecha</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbodyTodas">
-                                <tr><td colspan="5" class="no-data">Cargando...</td></tr>
-                            </tbody>
+                            <thead><tr><th>Usuario</th><th>Elemento</th><th>Cantidad</th><th>Estado</th><th>Fecha</th></tr></thead>
+                            <tbody id="tbodyTodas"><tr><td colspan="5" class="no-data">Cargando...</td></tr></tbody>
                         </table>
                     </div>
                 </div>
             </section>
 
             <!-- ── SECCIÓN REGISTROS DEPORTIVOS ─────────────── -->
-            <!-- FIX #4: 4 tabs — Fútbol / Baloncesto / Tenis de Mesa / Voleibol -->
-            <!-- Cada tab carga solicitudes aprobadas filtradas por categoría     -->
             <section class="content-section" id="registros">
                 <h1>Registros Deportivos</h1>
 
                 <div class="tabs" style="margin-bottom:20px">
-                    <button class="tab-dep-btn tab-btn active" data-deporte="futbol">
-                        <i class="fas fa-futbol"></i> Fútbol
-                    </button>
-                    <button class="tab-dep-btn tab-btn" data-deporte="baloncesto">
-                        <i class="fas fa-basketball-ball"></i> Baloncesto
-                    </button>
-                    <button class="tab-dep-btn tab-btn" data-deporte="tenis">
-                        <i class="fas fa-table-tennis"></i> Tenis de Mesa
-                    </button>
-                    <button class="tab-dep-btn tab-btn" data-deporte="voleibol">
-                        <i class="fas fa-volleyball-ball"></i> Voleibol
-                    </button>
+                    <button class="tab-dep-btn tab-btn active" data-deporte="futbol">⚽ Fútbol</button>
+                    <button class="tab-dep-btn tab-btn" data-deporte="baloncesto">🏀 Baloncesto</button>
+                    <button class="tab-dep-btn tab-btn" data-deporte="tenis">🏓 Tenis de Mesa</button>
+                    <button class="tab-dep-btn tab-btn" data-deporte="voleibol">🏐 Voleibol</button>
                 </div>
 
-                <!-- Fútbol -->
                 <div class="tab-dep-content active" id="tabDepFutbol">
                     <div class="table-container">
                         <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Usuario</th>
-                                    <th>Elemento</th>
-                                    <th>Cantidad</th>
-                                    <th>Fecha Solicitud</th>
-                                    <th>Fecha Aprobación</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbodyRegFutbol">
-                                <tr><td colspan="5" class="no-data">No hay registros de Fútbol</td></tr>
-                            </tbody>
+                            <thead><tr><th>Usuario</th><th>Elemento</th><th>Cantidad</th><th>Fecha Solicitud</th><th>Fecha Aprobación</th></tr></thead>
+                            <tbody id="tbodyRegFutbol"><tr><td colspan="5" class="no-data">No hay registros de Fútbol</td></tr></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Baloncesto (NUEVO) -->
                 <div class="tab-dep-content" id="tabDepBaloncesto">
                     <div class="table-container">
                         <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Usuario</th>
-                                    <th>Elemento</th>
-                                    <th>Cantidad</th>
-                                    <th>Fecha Solicitud</th>
-                                    <th>Fecha Aprobación</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbodyRegBaloncesto">
-                                <tr><td colspan="5" class="no-data">No hay registros de Baloncesto</td></tr>
-                            </tbody>
+                            <thead><tr><th>Usuario</th><th>Elemento</th><th>Cantidad</th><th>Fecha Solicitud</th><th>Fecha Aprobación</th></tr></thead>
+                            <tbody id="tbodyRegBaloncesto"><tr><td colspan="5" class="no-data">No hay registros de Baloncesto</td></tr></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Tenis de Mesa -->
                 <div class="tab-dep-content" id="tabDepTenis">
                     <div class="table-container">
                         <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Usuario</th>
-                                    <th>Elemento</th>
-                                    <th>Cantidad</th>
-                                    <th>Fecha Solicitud</th>
-                                    <th>Fecha Aprobación</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbodyRegTenis">
-                                <tr><td colspan="5" class="no-data">No hay registros de Tenis de Mesa</td></tr>
-                            </tbody>
+                            <thead><tr><th>Usuario</th><th>Elemento</th><th>Cantidad</th><th>Fecha Solicitud</th><th>Fecha Aprobación</th></tr></thead>
+                            <tbody id="tbodyRegTenis"><tr><td colspan="5" class="no-data">No hay registros de Tenis de Mesa</td></tr></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Voleibol (NUEVO) -->
                 <div class="tab-dep-content" id="tabDepVoleibol">
                     <div class="table-container">
                         <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Usuario</th>
-                                    <th>Elemento</th>
-                                    <th>Cantidad</th>
-                                    <th>Fecha Solicitud</th>
-                                    <th>Fecha Aprobación</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbodyRegVoleibol">
-                                <tr><td colspan="5" class="no-data">No hay registros de Voleibol</td></tr>
-                            </tbody>
+                            <thead><tr><th>Usuario</th><th>Elemento</th><th>Cantidad</th><th>Fecha Solicitud</th><th>Fecha Aprobación</th></tr></thead>
+                            <tbody id="tbodyRegVoleibol"><tr><td colspan="5" class="no-data">No hay registros de Voleibol</td></tr></tbody>
                         </table>
                     </div>
                 </div>
@@ -367,24 +269,20 @@
             <section class="content-section" id="inventario">
                 <div class="section-header">
                     <h1>Inventario Deportivo</h1>
-                    <button class="btn-add" id="btnAddInventario">
-                        <i class="fas fa-plus"></i> Agregar Elemento
-                    </button>
+                    <button class="btn-add" id="btnAddInventario">➕ Agregar Elemento</button>
                 </div>
 
-                <!-- FIX #5: Tabs por categoría -->
                 <div class="tabs" style="margin-bottom:20px; margin-top:15px; flex-wrap:wrap; gap:8px;">
-                    <button class="tab-btn active" data-categoria="Fútbol">⚽ Fútbol</button>
-                    <button class="tab-btn" data-categoria="Baloncesto">🏀 Baloncesto</button>
-                    <button class="tab-btn" data-categoria="Tenis de Mesa">🏓 Tenis de Mesa</button>
-                    <button class="tab-btn" data-categoria="Voleibol">🏐 Voleibol</button>
+                    <button class="tab-btn active" data-categoria="Fútbol">Fútbol</button>
+                    <button class="tab-btn" data-categoria="Baloncesto">Baloncesto</button>
+                    <button class="tab-btn" data-categoria="Tenis de Mesa">Tenis de Mesa</button>
+                    <button class="tab-btn" data-categoria="Voleibol">Voleibol</button>
                 </div>
 
                 <div class="inventory-grid" id="inventoryGrid">
                     <p class="no-data">Cargando inventario...</p>
                 </div>
 
-                <!-- Modal agregar/editar inventario -->
                 <div class="modal" id="modalInventario">
                     <div class="modal-content">
                         <h3 id="modalTitle">Agregar Elemento</h3>
@@ -432,7 +330,7 @@
                 <h1>Reportes y Estadísticas</h1>
                 <div class="charts-grid">
                     <div class="chart-card">
-                        <h3><i class="fas fa-users"></i> Usuarios por Tipo</h3>
+                        <h3>👥 Usuarios por Tipo</h3>
                         <div class="chart-content" id="chartTipoUsuario">
                             <div class="chart-bar-container">
                                 <div class="chart-bar estudiante" id="barEstudiante">
@@ -451,26 +349,12 @@
                         </div>
                     </div>
                     <div class="chart-card">
-                        <h3><i class="fas fa-futbol"></i> Deportes Más Practicados</h3>
-                        <div class="chart-content" id="chartDeportes">
-                            <div class="simple-pie-chart">
-                                <div class="pie-segment futbol" id="pieFutbol"><span>Fútbol</span></div>
-                                <div class="pie-segment tenis" id="pieTenis"><span>Tenis de Mesa</span></div>
-                            </div>
-                        </div>
+                        <h3>⚽ Deportes Más Practicados</h3>
+                        <div class="chart-content" id="chartDeportes"></div>
                     </div>
                     <div class="chart-card">
-                        <h3><i class="fas fa-calendar-alt"></i> Registros por Mes</h3>
-                        <div class="chart-content" id="chartMensual">
-                            <div class="monthly-bars">
-                                <div class="month-bar" style="height:60%"><span>Ene</span></div>
-                                <div class="month-bar" style="height:80%"><span>Feb</span></div>
-                                <div class="month-bar" style="height:90%"><span>Mar</span></div>
-                                <div class="month-bar" style="height:70%"><span>Abr</span></div>
-                                <div class="month-bar" style="height:85%"><span>May</span></div>
-                                <div class="month-bar" style="height:95%"><span>Jun</span></div>
-                            </div>
-                        </div>
+                        <h3>📅 Registros por Mes</h3>
+                        <div class="chart-content" id="chartMensual"></div>
                     </div>
                 </div>
             </section>
@@ -495,14 +379,14 @@
     <!-- Modal rechazo solicitud -->
     <div class="modal" id="modalRechazo">
         <div class="modal-content">
-            <h3><i class="fas fa-times-circle" style="color:var(--rojo-error)"></i> Rechazar Solicitud</h3>
+            <h3>❌ Rechazar Solicitud</h3>
             <p style="color:var(--gris-texto);margin:10px 0">Escribe el motivo del rechazo (será enviado al usuario):</p>
             <div class="form-group">
                 <textarea id="motivoRechazo" rows="4" placeholder="Motivo del rechazo..."
                     style="width:100%;padding:10px;border:2px solid #e0e0e0;border-radius:8px;font-size:1em;resize:vertical"></textarea>
             </div>
             <div class="modal-actions">
-                <button class="btn-delete" id="btnConfirmRechazo">Rechazar</button>
+                <button class="btn-delete" id="btnConfirmRechazo">✔ Confirmar</button>
                 <button class="btn-cancel" id="btnCancelRechazo">Cancelar</button>
             </div>
         </div>
