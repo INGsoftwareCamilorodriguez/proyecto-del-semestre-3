@@ -312,7 +312,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const btn = document.createElement('button');
         btn.className = 'btn-add';
         btn.id = 'btnAddUsuario';
-        btn.innerHTML = '➕ Agregar Usuario';
+        btn.innerHTML = ' Agregar Usuario';
         secHeader.appendChild(btn);
     }
 
