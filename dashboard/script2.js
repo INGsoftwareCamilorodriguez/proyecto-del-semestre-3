@@ -84,9 +84,8 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('searchUsuario').addEventListener('input', cargarUsuarios);
     document.getElementById('filterTipo').addEventListener('change', cargarUsuarios);
 
-    // ══════════════════════════════════════════════════════
+
     //  DASHBOARD
-    // ══════════════════════════════════════════════════════
     async function cargarDashboard() {
         try {
             const resU    = await fetchAdmin(`${API}/usuarios?todos=true`);
@@ -267,7 +266,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.insertAdjacentHTML('beforeend', `
         <div class="modal" id="modalCrearUsuario">
             <div class="modal-content">
-                <h3>➕ Agregar Usuario</h3>
+                <h3>Agregar Usuario</h3>
                 <div id="errorCrearUsuario" style="display:none;background:#fce4ec;color:#d32f2f;
                     padding:10px;border-radius:8px;margin:10px 0;font-size:0.9em"></div>
                 <div class="form-group">
@@ -301,7 +300,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <input type="password" id="cuContrasena" placeholder="Mín. 8 caracteres, 1 número, 1 especial">
                 </div>
                 <div class="modal-actions">
-                    <button class="btn-save" id="btnConfirmCrearUsuario">➕ Crear Usuario</button>
+                    <button class="btn-save" id="btnConfirmCrearUsuario"> Crear Usuario</button>
                     <button class="btn-cancel" id="btnCancelCrearUsuario">Cancelar</button>
                 </div>
             </div>
